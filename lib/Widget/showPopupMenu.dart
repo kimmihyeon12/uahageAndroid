@@ -169,7 +169,7 @@ class showPopup extends StatelessWidget {
   }
 
   Future<Object> showPopUpbottomMenu(BuildContext context, double screenHeight,
-      double screenWidth, Message, index, userId, loginOption, star_colors, type ) {
+      double screenWidth, Message, index, userId, loginOption, star_colors, type ,tableType ) {
     star_color = star_colors;
     return showGeneralDialog(
         context: context,
@@ -232,7 +232,7 @@ class showPopup extends StatelessWidget {
                                   data: btm,
                                   userId: userId,
                                   loginOption: loginOption,
-                                  tableType: 'restaurant',
+                                  tableType: tableType,
                                 ),
                                 duration: Duration(milliseconds: 100),
                                 reverseDuration: Duration(milliseconds: 100),

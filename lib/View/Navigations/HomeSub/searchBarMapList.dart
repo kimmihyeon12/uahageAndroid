@@ -298,7 +298,8 @@ class _Map_List_ToggleState extends State<Map_List_Toggle> {
                                     userId,
                                     loginOption,
                                     star_color,
-                                    "list");
+                                    "list",
+                                    "restaurant");
                               })
                         ]),
                       ),
