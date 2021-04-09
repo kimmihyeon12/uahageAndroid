@@ -15,6 +15,7 @@ import 'package:uahage/Provider/ConnectivityStatus.dart';
 
 import 'package:uahage/Widget/snackBar.dart';
 
+import 'package:uahage/Widget/showPopupMenu.dart';
 class Map_List_Toggle extends StatefulWidget {
   Map_List_Toggle(
       {Key key,
@@ -106,7 +107,7 @@ class _Map_List_ToggleState extends State<Map_List_Toggle> {
   }
 
   icon iconwidget = new icon();
-
+  showPopup showpopup = new showPopup();
   Widget build(BuildContext context) {
     ConnectivityStatus connectionStatus = Provider.of<ConnectivityStatus>(context);
     print(store_namelist[0]);
@@ -292,7 +293,12 @@ class _Map_List_ToggleState extends State<Map_List_Toggle> {
                                 print("Print1: $messages");
                                 Message = messages.split("|");
                                 await getSubStarColor();
-                                showPopUpbottomMenu(context, 2667.h, 1501.w);
+                                showpopup.showPopUpbottomMenu(context, 2667.h, 1501.w,  Message,
+                                    index,
+                                    userId,
+                                    loginOption,
+                                    star_color,
+                                    "list");
                               })
                         ]),
                       ),
@@ -351,193 +357,6 @@ class _Map_List_ToggleState extends State<Map_List_Toggle> {
       ) ;
   }
 
-  Future<Object> showPopUpbottomMenu(
-      BuildContext context, double screenHeight, double screenWidth) {
-    return showGeneralDialog(
-        context: context,
-        pageBuilder: (BuildContext buildContext, Animation<double> animation,
-            Animation<double> secondaryAnimation) {
-          return StatefulBuilder(builder: (context, setState) {
-            return Builder(builder: (context) {
-              return Stack(
-                children: [
-                  GestureDetector(
-                    onPanDown: (a) {
-                      Navigator.pop(context);
-                    },
-                    child: Container(
-                      color: Colors.transparent,
-                      width: MediaQuery.of(context).size.width,
-                      height: 2100.h,
-                    ),
-                  ),
-                  Container(
-                    margin: EdgeInsets.only(
-                        top: 2100.h, bottom: 50.h, left: 33.w, right: 33.w),
-                    width: MediaQuery.of(context).size.width,
-                    child: Card(
-                      elevation: 1,
-                      color: Colors.white,
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(10.0),
-                      ),
-                      child: InkWell(
-                        onTap: () async {
-                          final btm = BottomButton(
-                            storeName: Message[0],
-                            address1: Message[1],
-                            phone1: Message[2],
-                            menu1: Message[3],
-                            bed1: Message[4],
-                            tableware1: Message[5],
-                            meetingroom1: Message[6],
-                            diapers1: Message[7],
-                            playroom1: Message[8],
-                            carriage1: Message[9],
-                            nursingroom1: Message[10],
-                            chair1: Message[11],
-                          );
-                          final result = await Navigator.push(
-                              context,
-                              PageTransition(
-                                type: PageTransitionType.rightToLeft,
-                                child:  SubListPage(
-                                  index: index++,
-                                  data: btm,
-                                  userId: userId,
-                                  loginOption: loginOption,
-                                  tableType:'restaurant',
-                                ),
-                                duration: Duration(milliseconds: 100),
-                                reverseDuration: Duration(milliseconds: 100),
-                              ));
-                          result
-                              ? setState(() {
-                            star_color = true;
-                          })
-                              : setState(() {
-                            star_color = false;
-                          });
-                        },
-                        child: Row(
-                          children: [
-                            Padding(
-                                padding: EdgeInsets.only(
-                                  left: 30 /
-                                      (1501 / MediaQuery.of(context).size.width),
-                                )),
-                            Image.asset(
-                              "./assets/listPage/clipGroup1.png",
-                              height: 409.h,
-                              width: 413.w,
-                            ),
-                            Padding(
-                                padding: EdgeInsets.only(
-                                  left: 53 /
-                                      (1501 / MediaQuery.of(context).size.width),
-                                )),
-                            Column(
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              children: [
-                                Container(
-                                  margin: EdgeInsets.only(top: 50.h),
-                                  width: 900.w,
-                                  height: 82.h,
-                                  child: Row(
-                                    //  crossAxisAlignment: CrossAxisAlignment.center,
-                                    //     mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                                    children: [
-                                      Container(
-                                        width: 700.w,
-                                        child: Text(
-                                            Message[0].length <= 10
-                                                ? Message[0]
-                                                : Message[0].substring(0, 11),
-                                            style: TextStyle(
-                                              color: const Color(0xff010000),
-                                              fontWeight: FontWeight.w500,
-                                              fontFamily: "NotoSansCJKkr_Bold",
-                                              fontStyle: FontStyle.normal,
-                                              fontSize: 58.sp,
-                                              height: 1.3,
-                                            ),
-                                            // overflow: TextOverflow.ellipsis,
-                                            textAlign: TextAlign.left),
-                                      ),
-                                      IconButton(
-                                        //  iconSize: 60 .h,
-                                        padding: EdgeInsets.all(0),
-                                        icon: Image.asset(
-                                            star_color
-                                                ? "./assets/listPage/star_color.png"
-                                                : "./assets/listPage/star_grey.png",
-                                            height: 60.h),
-                                        onPressed: loginOption == "login"
-                                            ? () {
-                                          show_toast.showToast(
-                                              context, "로그인해주세요!");
-                                        }
-                                            : () async {
-                                          setState(() {
-                                            star_color = !star_color;
-                                          });
-                                          await click_star();
-                                        },
-                                      ),
-                                    ],
-                                  ),
-                                ),
-                                Container(
-                                  margin: EdgeInsets.only(top: 10.h),
-                                  width: 650.w,
-                                  height: 135.h,
-                                  child: Text(Message[1],
-                                      style: TextStyle(
-                                        color: const Color(0xffb0b0b0),
-                                        fontWeight: FontWeight.w500,
-                                        fontFamily: "NotoSansCJKkr_Medium",
-                                        fontStyle: FontStyle.normal,
-                                        fontSize: 55.sp,
-                                        height: 1.3,
-                                      ),
-                                      textAlign: TextAlign.left),
-                                ),
-                                Container(
-                                  margin: EdgeInsets.only(top: 10.h),
-                                  height: 120.h,
-                                  width: 650.w,
-                                  alignment: Alignment.bottomRight,
-                                  child: Row(children: [
-                                    iconwidget.menu(Message[3], context),
-                                    iconwidget.bed(Message[4], context),
-                                    iconwidget.tableware(Message[5], context),
-                                    iconwidget.meetingroom(Message[6], context),
-                                    iconwidget.diapers(Message[7], context),
-                                    iconwidget.playroom(Message[8], context),
-                                    iconwidget.carriage(Message[9], context),
-                                    iconwidget.nursingroom(
-                                        Message[10], context),
-                                    iconwidget.chair(Message[11], context),
-                                  ]),
-                                ),
-                              ],
-                            ),
-                          ],
-                        ),
-                      ),
-                    ),
-                  ),
-                ],
-              );
-            });
-          });
-        },
-        barrierDismissible: true,
-        barrierLabel:
-        MaterialLocalizations.of(context).modalBarrierDismissLabel,
-        barrierColor: null,
-        transitionDuration: const Duration(milliseconds: 150));
-  }
 
   Future<bool> _onbackpressed() {
     setState(() {
