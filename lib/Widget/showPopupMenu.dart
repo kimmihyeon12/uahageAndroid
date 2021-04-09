@@ -177,7 +177,8 @@ class showPopup extends StatelessWidget {
       userId,
       loginOption,
       star_colors,
-      type) {
+      type,
+      tableType) {
     star_color = star_colors;
     return showGeneralDialog(
         context: context,
@@ -243,7 +244,7 @@ class showPopup extends StatelessWidget {
                                   data: btm,
                                   userId: userId,
                                   loginOption: loginOption,
-                                  tableType: 'restaurant',
+                                  tableType: tableType,
                                 ),
                                 duration: Duration(milliseconds: 100),
                                 reverseDuration: Duration(milliseconds: 100),

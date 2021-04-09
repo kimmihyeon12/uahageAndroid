@@ -294,7 +294,7 @@ class _ListPageState extends State<ListPage> {
                 loginOption: loginOption,
                 latitude: latitude,
                 longitude: longitude,
-                list: tableType,
+                tableType: tableType,
                 Area: Area,
                 Locality: Locality),
           ])),

@@ -17,7 +17,7 @@ class map_list extends StatefulWidget {
       {Key key,
       this.latitude,
       this.longitude,
-      this.list,
+      this.tableType,
       this.userId,
       this.loginOption,
       this.Area,
@@ -27,7 +27,7 @@ class map_list extends StatefulWidget {
   String userId;
   String latitude;
   String longitude;
-  String list;
+  String tableType;
   String Area = "";
   String Locality = "";
   @override
@@ -42,8 +42,8 @@ class _map_listState extends State<map_list> {
   String searchKey = "";
   String Area = "";
   String Locality = "";
-  String list;
-  var listrequest;
+  String tableType;
+
   var index = 1;
   var Message;
   List<bool> grey_image = [
@@ -63,6 +63,7 @@ class _map_listState extends State<map_list> {
   showPopup showpopup = new showPopup();
 
   Future click_star() async {
+
     await starInsertDelete.click_star(
         userId + loginOption,
         Message[0],
@@ -80,7 +81,7 @@ class _map_listState extends State<map_list> {
         null,
         null,
         star_color,
-        list);
+        tableType);
   }
 
   Future searchCategory() async {
@@ -112,14 +113,14 @@ class _map_listState extends State<map_list> {
   @override
   void initState() {
     setState(() {
-      list = widget.list;
+      tableType = widget.tableType;
       loginOption = widget.loginOption;
       userId = widget.userId ?? "";
       latitude = widget.latitude;
       longitude = widget.longitude;
       Area = widget.Area;
       Locality = widget.Locality;
-      listrequest = widget.list;
+
     });
     super.initState();
     print("latt in restaurant_sub : $latitude");
@@ -172,7 +173,7 @@ class _map_listState extends State<map_list> {
                       longitude == '') {
                   } else {
                     controller.loadUrl(
-                        'http://211.223.46.144:3000/map/listsearchmarker/$listrequest?lat=$latitude&long=$longitude&Area=$Area&Locality=$Locality');
+                        'http://211.223.46.144:3000/map/listsearchmarker/$tableType?lat=$latitude&long=$longitude&Area=$Area&Locality=$Locality');
                   }
                 },
                 javascriptMode: JavascriptMode.unrestricted,
@@ -195,7 +196,8 @@ class _map_listState extends State<map_list> {
                             userId,
                             loginOption,
                             star_color,
-                            "list");
+                            "list",
+                            tableType);
                       }),
                 ]),
               ),
@@ -205,7 +207,7 @@ class _map_listState extends State<map_list> {
               ),
             ],
           ),
-          listrequest == "restaurant"
+          tableType == "restaurant"
               ? GestureDetector(
                   onTap: () async {
                     setState(() {

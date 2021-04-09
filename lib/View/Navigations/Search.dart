@@ -190,7 +190,8 @@ class _searchPageState extends State<searchPage> {
                             userId,
                             loginOption,
                             star_color,
-                        "search");
+                        "search",
+                            "restaurant");
                       })
                 ]),
               ),
