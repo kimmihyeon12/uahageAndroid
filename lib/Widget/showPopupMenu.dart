@@ -168,8 +168,16 @@ class showPopup extends StatelessWidget {
         transitionDuration: const Duration(milliseconds: 150));
   }
 
-  Future<Object> showPopUpbottomMenu(BuildContext context, double screenHeight,
-      double screenWidth, Message, index, userId, loginOption, star_colors, type ) {
+  Future<Object> showPopUpbottomMenu(
+      BuildContext context,
+      double screenHeight,
+      double screenWidth,
+      Message,
+      index,
+      userId,
+      loginOption,
+      star_colors,
+      type) {
     star_color = star_colors;
     return showGeneralDialog(
         context: context,
@@ -186,12 +194,15 @@ class showPopup extends StatelessWidget {
                     child: Container(
                       color: Colors.transparent,
                       width: MediaQuery.of(context).size.width,
-                      height: type =='search'? 1874.h : 2100.h,
+                      height: type == 'search' ? 1874.h : 2100.h,
                     ),
                   ),
                   Container(
                     margin: EdgeInsets.only(
-                        top: type =='search'? 1900.h: 2100.h, bottom: type =='search'? 263.h :50.h , left: 33.w, right: 33.w),
+                        top: type == 'search' ? 1900.h : 2100.h,
+                        bottom: type == 'search' ? 263.h : 50.h,
+                        left: 33.w,
+                        right: 33.w),
                     width: MediaQuery.of(context).size.width,
                     child: Card(
                       shadowColor: Colors.black54,
@@ -228,7 +239,7 @@ class showPopup extends StatelessWidget {
                               PageTransition(
                                 type: PageTransitionType.rightToLeft,
                                 child: SubListPage(
-                                  index: index++,
+                                  index: index + 1,
                                   data: btm,
                                   userId: userId,
                                   loginOption: loginOption,
@@ -303,7 +314,7 @@ class showPopup extends StatelessWidget {
 
                                                 loginOption != "login"
                                                     ? await click_star(userId,
-                                                    loginOption, Message)
+                                                        loginOption, Message)
                                                     : null;
                                               },
                                       ),
@@ -360,7 +371,6 @@ class showPopup extends StatelessWidget {
         barrierColor: null,
         transitionDuration: const Duration(milliseconds: 150));
   }
-
 
   @override
   Widget build(BuildContext context) {
