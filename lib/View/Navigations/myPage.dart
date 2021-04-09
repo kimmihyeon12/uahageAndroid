@@ -358,16 +358,6 @@ class _myPageState extends State<myPage> {
       fontSize: 52.sp,
     );
 
-    // print("widgetbuuild imageLink " + imageLink);
-
-    // isIOS
-    //     ? SystemChrome.setSystemUIOverlayStyle(SystemUiOverlayStyle.dark
-    //         .copyWith(
-    //             statusBarBrightness:
-    //                 Brightness.dark // Dark == white status bar -- for IOS.
-    //             ))
-    //     : null;
-
     return WillPopScope(
       onWillPop: () async => false,
       child: Scaffold(

@@ -143,6 +143,7 @@ class _agreementPageState extends State<agreementPage> {
   // ************************************Naver Login ******************
   var accesToken;
   var tokenType;
+
   Future naverLogin() async {
     try {
       await FlutterNaverLogin.logIn();

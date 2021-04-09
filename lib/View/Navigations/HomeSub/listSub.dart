@@ -154,10 +154,8 @@ class _SubListPageState extends State<SubListPage> {
   mainImage(image, screenWidth) {
     return CachedNetworkImage(
       imageUrl: image,
-
       fit: BoxFit.fitWidth,
     );
-
   }
 
   @override
@@ -227,7 +225,6 @@ class _SubListPageState extends State<SubListPage> {
                       }
                     }()),
                   ),
-
                   Card(
                     elevation: 0.3,
                     child: Container(
@@ -238,7 +235,7 @@ class _SubListPageState extends State<SubListPage> {
                         children: [
                           Container(
                             width: 1250.w,
-                            child: Text(data.store_name,
+                            child: Text("${data.store_name}",
                                 style: TextStyle(
                                     color: Colors.black,
                                     fontFamily: "NotoSansCJKkr_Bold",
@@ -317,7 +314,9 @@ class _SubListPageState extends State<SubListPage> {
                               Container(
                                 width: 1065.w,
                                 child: Text(
-                                  data.address == null ? "정보 없음" : data.address,
+                                  data.address == null
+                                      ? "정보 없음"
+                                      : "${data.address}",
                                   style: TextStyle(
                                       color: Color(0xff808080),
                                       fontFamily: "NotoSansCJKkr_Medium",
@@ -360,7 +359,7 @@ class _SubListPageState extends State<SubListPage> {
                                 10 / (1501 / MediaQuery.of(context).size.width),
                           )),
                           Text(
-                            data.phone,
+                            "${data.phone}",
                             style: TextStyle(
                                 color: Color(0xff808080),
                                 fontFamily: "NotoSansCJKkr_Medium",
@@ -531,15 +530,16 @@ class _SubListPageState extends State<SubListPage> {
                     } else if (tableType == "Examination_institution") {
                       return Card(
                         elevation: 0.3,
-           child: Container(
+                        child: Container(
                           width: MediaQuery.of(context).size.width,
                           padding: EdgeInsets.only(
-                            left: 75.w,   top: 20.h,
+                            left: 75.w,
+                            top: 20.h,
                           ),
                           child: Column(
-                           crossAxisAlignment: CrossAxisAlignment.start,
+                            crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
-                               Text(
+                              Text(
                                 "검진항목",
                                 style: TextStyle(
                                     color: Color(0xff4d4d4d),
@@ -548,11 +548,11 @@ class _SubListPageState extends State<SubListPage> {
                               ),
                               Padding(
                                   padding: EdgeInsets.only(
-                                top:
-                                    10 / (1501 / MediaQuery.of(context).size.width),
+                                top: 10 /
+                                    (1501 / MediaQuery.of(context).size.width),
                               )),
                               Text(
-                                data.Examination_item,
+                                "${data.Examination_item}",
                                 style: TextStyle(
                                     color: Color(0xff808080),
                                     fontFamily: "NotoSansCJKkr_Medium",
@@ -561,22 +561,22 @@ class _SubListPageState extends State<SubListPage> {
                               ),
                               Padding(
                                   padding: EdgeInsets.only(
-                                top:
-                                    50 / (1501 / MediaQuery.of(context).size.width),
+                                top: 50 /
+                                    (1501 / MediaQuery.of(context).size.width),
                               )),
                             ],
                           ),
                         ),
                       );
                     } else {
-                      return
-                        Card(
-                          elevation: 0.3,
-                          child: Container(
-                            width: MediaQuery.of(context).size.width,
-                            padding: EdgeInsets.only(
-                              left: 75.w,   top: 20.h,
-                            ),
+                      return Card(
+                        elevation: 0.3,
+                        child: Container(
+                          width: MediaQuery.of(context).size.width,
+                          padding: EdgeInsets.only(
+                            left: 75.w,
+                            top: 20.h,
+                          ),
                           child: Column(
                             crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
@@ -589,11 +589,11 @@ class _SubListPageState extends State<SubListPage> {
                               ),
                               Padding(
                                   padding: EdgeInsets.only(
-                                top:
-                                    10 / (1501 / MediaQuery.of(context).size.width),
+                                top: 10 /
+                                    (1501 / MediaQuery.of(context).size.width),
                               )),
                               Text(
-                                data.fare == null ? "정보 없음" : data.fare,
+                                data.fare == null ? "정보 없음" : "${data.fare}",
                                 style: TextStyle(
                                     color: Color(0xff808080),
                                     fontFamily: "NotoSansCJKkr_Medium",
@@ -602,13 +602,13 @@ class _SubListPageState extends State<SubListPage> {
                               ),
                               Padding(
                                   padding: EdgeInsets.only(
-                                top:
-                                    50 / (1501 / MediaQuery.of(context).size.width),
+                                top: 50 /
+                                    (1501 / MediaQuery.of(context).size.width),
                               )),
                             ],
                           ),
-                      ),
-                        );
+                        ),
+                      );
                     }
                   }()),
                   Card(

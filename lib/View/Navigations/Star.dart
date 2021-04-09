@@ -431,7 +431,7 @@ class _starPageState extends State<starPage> {
           PageTransition(
             type: PageTransitionType.rightToLeft,
             child: SubListPage(
-              index: index++,
+              index: index + 1,
               data: snapshot.data[index],
               userId: userId,
               loginOption: loginOption,
@@ -446,7 +446,7 @@ class _starPageState extends State<starPage> {
           PageTransition(
             type: PageTransitionType.rightToLeft,
             child: SubListPage(
-              index: index++,
+              index: index + 1,
               data: snapshot.data[index],
               userId: userId,
               loginOption: loginOption,
@@ -461,7 +461,7 @@ class _starPageState extends State<starPage> {
           PageTransition(
             type: PageTransitionType.rightToLeft,
             child: SubListPage(
-              index: index++,
+              index: index + 1,
               data: snapshot.data[index],
               userId: userId,
               loginOption: loginOption,
@@ -476,7 +476,7 @@ class _starPageState extends State<starPage> {
           PageTransition(
             type: PageTransitionType.rightToLeft,
             child: SubListPage(
-              index: index++,
+              index: index + 1,
               data: snapshot.data[index],
               userId: userId,
               loginOption: loginOption,

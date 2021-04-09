@@ -59,7 +59,9 @@ class _ListPageState extends State<ListPage> {
       playroom1,
       carriage1,
       nursingroom1,
-      chair1;
+      chair1,
+      fare1,
+      examination_item1;
   var list = true;
   toast show_toast = new toast();
 
@@ -124,8 +126,8 @@ class _ListPageState extends State<ListPage> {
         carriage1,
         nursingroom1,
         chair1,
-        null,
-        null,
+        fare1,
+        examination_item1,
         star_color,
         tableType);
   }
@@ -157,7 +159,7 @@ class _ListPageState extends State<ListPage> {
           currentData = KidsCafe.fromJson(data);
         }
 
-        print("distancePoints $latitude");
+        // print("distancePoints $latitude");
         distance = await distancePoints(
           double.parse(latitude),
           double.parse(longitude),
@@ -170,7 +172,7 @@ class _ListPageState extends State<ListPage> {
 
       sortedKeys = map.keys.toList()..sort();
       for (var keys in sortedKeys) {
-        print("$keys ${map[keys]['data']}");
+        // print("$keys ${map[keys]['data']}");
         sortedListData.add(map[keys]['data']);
         sortedStarList.add(map[keys]['starIndex']);
       }
@@ -540,22 +542,32 @@ class _ListPageState extends State<ListPage> {
                                               snapshot.data[index].store_name;
                                           address1 =
                                               snapshot.data[index].address;
-                                          bed1 = snapshot.data[index].bed;
                                           phone1 = snapshot.data[index].phone;
-                                          menu1 = snapshot.data[index].menu;
-                                          tableware1 =
-                                              snapshot.data[index].tableware;
-                                          meetingroom1 =
-                                              snapshot.data[index].meetingroom;
-                                          diapers1 =
-                                              snapshot.data[index].diapers;
-                                          playroom1 =
-                                              snapshot.data[index].playroom;
-                                          carriage1 =
-                                              snapshot.data[index].carriage;
-                                          nursingroom1 =
-                                              snapshot.data[index].nursingroom;
-                                          chair1 = snapshot.data[index].chair;
+                                          print(phone1);
+                                          if (tableType == "restaurant") {
+                                            menu1 = snapshot.data[index].menu;
+
+                                            bed1 = snapshot.data[index].bed;
+                                            tableware1 =
+                                                snapshot.data[index].tableware;
+                                            meetingroom1 = snapshot
+                                                .data[index].meetingroom;
+                                            diapers1 =
+                                                snapshot.data[index].diapers;
+                                            playroom1 =
+                                                snapshot.data[index].playroom;
+                                            carriage1 =
+                                                snapshot.data[index].carriage;
+                                            nursingroom1 = snapshot
+                                                .data[index].nursingroom;
+                                            chair1 = snapshot.data[index].chair;
+                                          } else if (tableType ==
+                                              "Examination_institution") {
+                                            examination_item1 = snapshot
+                                                .data[index].Examination_item;
+                                          } else {
+                                            fare1 = snapshot.data[index].fare;
+                                          }
 
                                           if (sortedStarList[index] == false) {
                                             setState(() {
