@@ -37,7 +37,7 @@ script.
    // 지도를 생성합니다
   mapOption = {
   center: new kakao.maps.LatLng(35.161184, 126.893916), // 지도의 중심좌표
-  level: 1// 지도의 확대 레벨
+  level: #{zoomInTo}// 지도의 확대 레벨
   };
   var map = new kakao.maps.Map(mapContainer, mapOption);
   //- var imageSrc = 'http://hohoco.dothome.co.kr/img/path.png',//'https://t1.daumcdn.net/localimg/localimages/07/mapapidoc/marker_number_blue.png', // 마커이미지의 주소입니다
