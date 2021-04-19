@@ -94,7 +94,8 @@ class _ListPageState extends State<ListPage> {
   List<dynamic> sortedStarList = [];
   Map<double, dynamic> map = new Map();
   var sortedKeys;
-
+  int pageNumber = 0;
+  bool isLoading;
   @override
   void initState() {
     sortedListData = [];
@@ -107,46 +108,73 @@ class _ListPageState extends State<ListPage> {
     tableType = widget.tableType ?? "";
     myFuture = _getDataList();
     super.initState();
+
+    _scrollController.addListener(() {
+      double maxScroll = _scrollController.position.maxScrollExtent;
+      double currentScroll = _scrollController.position.pixels;
+      double delta =
+      100.0; // or something else..maxScroll - currentScroll <= delta
+      if (currentScroll == maxScroll && !isLoading) {
+        print("scrolling");
+        pageNumber++;
+        isLoading = true;
+        _getDataList();
+      }
+    });
   }
 
-  Future click_star() async {
-    await starInsertDelete.click_star(
-        userId + loginOption,
-        store_name1,
-        address1,
-        phone1,
-        menu1,
-        bed1,
-        tableware1,
-        meetingroom1,
-        diapers1,
-        playroom1,
-        carriage1,
-        nursingroom1,
-        chair1,
-        null,
-        null,
-        star_color,
-        tableType);
-  }
+  // Future click_star() async {
+  //   await starInsertDelete.click_star(
+  //       userId + loginOption,
+  //       store_name1,
+  //       address1,
+  //       phone1,
+  //       menu1,
+  //       bed1,
+  //       tableware1,
+  //       meetingroom1,
+  //       diapers1,
+  //       playroom1,
+  //       carriage1,
+  //       nursingroom1,
+  //       chair1,
+  //       null,
+  //       null,
+  //       star_color,
+  //       tableType);
+  // }
 
-  Future get_star_color() async {
-    star_color_list =
-        await starInsertDelete.getStarColor(userId, loginOption, tableType);
-    setState(() {});
-  }
+  // Future get_star_color() async {
+  //   star_color_list =
+  //       await starInsertDelete.getStarColor(userId, loginOption, tableType);
+  //   setState(() {});
+  // }
+
 
   Future<List<dynamic>> _getDataList() async {
-    await get_star_color();
+    print(pageNumber);
+   // await get_star_color();
+    var space_code;
+    if (tableType == 'restaurant') {
+      space_code = 1;
+    } else if (tableType == 'Examination_institution') {
+      space_code = 2;
+    } else if (tableType == 'Experience_center') {
+      space_code = 6;
+    } else if (tableType == 'Kids_cafe') {
+      space_code = 5;
+    }
+
     final response = await http.get(
-        'http://211.223.46.144:3000/getList/$tableType'); //?maxCount=$_currentMax');
-    List responseJson = json.decode(response.body);
-    if (json.decode(response.body)[0] == false) {
-    } else {
-      var currentData;
+        'http://121.179.177.116:8000/api/places?place_code=$space_code&lat=$latitude&lon=$longitude&pageNumber=$pageNumber');
+    List responseJson =  json.decode(response.body)["data"]["rows"];
+     if (json.decode(response.body)["message"] == false) {
+      } else {
+       var currentData;
       var distance;
       int i = 0;
       for (var data in responseJson) {
+        print(data);
         if (tableType == 'restaurant') {
           currentData = Restaurant.fromJson(data);
         } else if (tableType == 'Examination_institution') {
@@ -156,24 +184,16 @@ class _ListPageState extends State<ListPage> {
         } else if (tableType == 'Kids_cafe') {
           currentData = KidsCafe.fromJson(data);
         }
+        print(currentData);
+        sortedListData.add(currentData);
 
-        print("distancePoints $latitude");
-        distance = await distancePoints(
-          double.parse(latitude),
-          double.parse(longitude),
-          currentData.lon,
-          currentData.lat,
-        );
-        map[distance] = {"data": currentData, "starIndex": star_color_list[i]};
-        i++;
-      }
 
-      sortedKeys = map.keys.toList()..sort();
-      for (var keys in sortedKeys) {
-        print("$keys ${map[keys]['data']}");
-        sortedListData.add(map[keys]['data']);
-        sortedStarList.add(map[keys]['starIndex']);
+
       }
+       setState(() {
+         isLoading = false;
+       });
+
     }
     return sortedListData;
   }
@@ -308,12 +328,13 @@ class _ListPageState extends State<ListPage> {
             child: Text("${snapshot.error}"),
           );
         } else if (snapshot.hasData &&
-            snapshot.data != null &&
-            sortedStarList.length != 0) {
+            snapshot.data != null  ){
+       //     sortedStarList.length != 0) {
           // print("snapshot.hasData: ${snapshot.hasData}  ${snapshot.data}");
+          print("length"+sortedListData.length.toString());
           return Scrollbar(
             child: ListView.builder(
-                // controller: _scrollController,
+                 controller: _scrollController,
                 itemCount: sortedListData?.length,
                 shrinkWrap: true,
                 itemBuilder: (context, index) {
@@ -432,7 +453,7 @@ class _ListPageState extends State<ListPage> {
                                               width: 700.w,
                                               height: 82.h,
                                               child: Text(
-                                                snapshot.data[index].store_name,
+                                                snapshot.data[index].name,
                                                 style: TextStyle(
                                                   fontSize: 56.sp,
                                                   fontFamily:
@@ -524,7 +545,7 @@ class _ListPageState extends State<ListPage> {
                                   maxHeight: 70.h,
                                 ),
                                 icon: Image.asset(
-                                  !sortedStarList[index]
+                                true
                                       ? "./assets/listPage/star_grey.png"
                                       : "./assets/listPage/star_color.png",
                                   height: 60.h,
@@ -537,7 +558,7 @@ class _ListPageState extends State<ListPage> {
                                     : () async {
                                         setState(() {
                                           store_name1 =
-                                              snapshot.data[index].store_name;
+                                              snapshot.data[index].name;
                                           address1 =
                                               snapshot.data[index].address;
                                           bed1 = snapshot.data[index].bed;
@@ -569,7 +590,7 @@ class _ListPageState extends State<ListPage> {
                                             });
                                           }
 
-                                          click_star();
+                                     //     click_star();
                                         });
                                       },
                               ),
