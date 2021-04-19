@@ -1,6 +1,4 @@
-import 'dart:io';
 import 'package:flutter/material.dart';
-import 'package:flutter_device_type/flutter_device_type.dart';
 import 'package:uahage/Provider/ConnectivityStatus.dart';
 import 'package:uahage/View/Auth/agreement.dart';
 import 'package:uahage/Widget/SnackBar.dart';
@@ -14,19 +12,11 @@ class loginPage extends StatefulWidget {
 }
 
 class _loginPageState extends State<loginPage> {
-  bool isIOS = Platform.isIOS;
-  bool isIphoneX = Device.get().isIphoneX;
-
   @override
   Widget build(context) {
     var connectionStatus = Provider.of<ConnectivityStatus>(context);
-    if (isIphoneX) {
-      ScreenUtil.init(context, width: 5076, height: 2345);
-    } else if (isIOS) {
-      ScreenUtil.init(context, width: 1390, height: 781.5);
-    } else {
-      ScreenUtil.init(context, width: 1501, height: 2667);
-    }
+
+    ScreenUtil.init(context, width: 1501, height: 2667);
 
     return Scaffold(
       body: Stack(

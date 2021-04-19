@@ -24,6 +24,7 @@ Future buildShowDialogOnOk(var function, BuildContext context, var heightSize,
     var widthSize, var height, var width, var _fontsize) {
   ScreenUtil.init(context, width: 1500, height: 2667);
   return showDialog(
+    barrierDismissible: false,
     context: context,
     builder: (ctx) => FutureBuilder(
       future: function,
