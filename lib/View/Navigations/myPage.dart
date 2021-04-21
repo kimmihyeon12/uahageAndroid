@@ -41,6 +41,10 @@ class _myPageState extends State<myPage> {
   String _uploadedFileURL = "";
   File _image;
   String imageLink = "";
+  SharedPreferences sharedPreferences;
+  String token;
+  String id;
+
   @override
   void initState() {
     super.initState();
@@ -52,42 +56,53 @@ class _myPageState extends State<myPage> {
     // print("loginOption" + loginOption);
     // print("widgetID" + widget.userId);
     if (loginOption != "login") {
-      getMyAvatar();
+      // getMyAvatar();
       getMyInfo();
     }
   }
 
   toast show_toast = new toast();
   getMyInfo() async {
+    sharedPreferences = await SharedPreferences.getInstance();
+    setState(() {
+      token = sharedPreferences.getString("uahageUserToken");
+      id = sharedPreferences.getString("uahageUserId");
+    });
+
     try {
-      var response = await http.get(
-          "http://121.147.203.126:3000/getMyInfo?userId=$userId$loginOption");
-      var data = jsonDecode(response.body);
+      var response = await http.get("http://121.147.203.126:8000/api/users/$id",
+          headers: <String, String>{"Authorization": token});
+      var data = jsonDecode(response.body)['data']["result"][0];
       print("printing info " + data.toString());
-      if (data["gender"].toString() != "") {
-        // var datee = data["birthday"].toString() == ""
-        //     ? [""]
-        //     : data["birthday"].toString().split('-');
-        // dynamic dd = datee.length == 0
-        //     ? data["birthday"].toString()
-        //     : datee[0] + "년 " + datee[1] + "월 " + datee[2] + "일";
-        if (data["gender"].toString() == "boy") {
+      // setting profile image
+      String _imageLink = data["profile_url"];
+      print("_imageLink from myInfo $_imageLink");
+      if (_imageLink == null || _imageLink == "")
+        setState(() {
+          imageLink = "";
+        });
+      else
+        setState(() {
+          imageLink = _imageLink.toString();
+        });
+      if (data["baby_gender"].toString() != "") {
+        if (data["baby_gender"].toString() == "M") {
           setState(() {
             genderImage[0] = true;
             genderImage[1] = false;
-            birthday = data["birthday"].toString();
+            birthday = data["baby_birthday"].toString();
             yController.text = birthday;
           });
         } else {
           setState(() {
             genderImage[0] = false;
             genderImage[1] = true;
-            birthday = data["birthday"].toString();
+            birthday = data["baby_birthday"].toString();
             yController.text = birthday;
           });
         }
 
-        _change(data["age"].toString());
+        _change(data["parent_age"].toString());
       }
     } catch (err) {
       print(err);
@@ -114,58 +129,39 @@ class _myPageState extends State<myPage> {
       }
     } catch (err) {
       print(err);
-      return err["message"];
+      return err;
     }
   }
 
   Future deleteFile() async {
+    print(imageLink);
     try {
-      await http
-          .put(
-            "http://121.147.203.126:3000/updateImage/$userId$loginOption",
-            headers: <String, String>{
-              'Content-Type': 'application/json; charset=UTF-8',
-            },
-            body: jsonEncode({"URL": ""}),
-          )
-          .then((value) => print(value.body))
-          .catchError((err) => print(err));
-    } catch (error) {}
-  }
-
-  Future updateNickname() async {
-    Map<String, dynamic> ss = {
-      "userId": userId + loginOption,
-      // "oldNickname": oldNickname,
-      "gender": gender,
-      "birthday": birthday,
-      "age": userAge,
-    };
-    // print(ss);
-    var response = await http.post(
-      "http://121.147.203.126:3000/updateNickname/$nickName",
-      headers: <String, String>{
-        'Content-Type': 'application/json; charset=UTF-8',
-      },
-      body: jsonEncode(ss),
-    );
-    return jsonDecode(response.body)["message"];
+      await http.post(
+        "http://121.147.203.126:8000/api/s3/images-delete",
+        headers: <String, String>{
+          'Content-Type': 'application/json; charset=UTF-8',
+          "Authorization": token
+        },
+        body: jsonEncode({"fileName": imageLink}),
+      );
+    } catch (err) {
+      print(err);
+    }
   }
 
   Future getMyNickname() async {
     var data;
     try {
-      var response = await http.get(
-          "http://121.147.203.126:3000/getMyNickname?userId=$userId$loginOption");
+      var response = await http.get("http://121.147.203.126:8000/api/users/$id",
+          headers: <String, String>{"Authorization": token});
       // print("widgetID" + userId);
       if (response.statusCode == 200) {
-        data = json.decode(response.body)["nickname"];
-
-        // setState(() {
-        //   userId = data.toString();
-        // });
-        // print("userID setst " + userId);
-        return data.toString();
+        data = json.decode(response.body)["data"]["result"][0];
+        if (data.length == 0) {
+          return "";
+        } else {
+          return data["nickname"].toString();
+        }
       }
     } catch (err) {
       print(err);
@@ -180,7 +176,6 @@ class _myPageState extends State<myPage> {
     setState(() {
       _image = File(image.path);
     });
-    await uploadFile(_image);
   }
 
   Future _imgFromGallery() async {
@@ -190,20 +185,23 @@ class _myPageState extends State<myPage> {
     setState(() {
       _image = File(image.path);
     });
-    await uploadFile(_image);
+    print("from gallery $imageLink");
   }
 
   uploadFile(File file) async {
+    // delete image from s3 if exists
     if (imageLink != "") {
       try {
         // print(ss);
         await http.post(
-          "http://121.147.203.126:3000/api/profile/deleteImage",
+          "http://121.147.203.126:8000/api/s3/images-delete",
           headers: <String, String>{
             'Content-Type': 'application/json; charset=UTF-8',
+            "Authorization": token
           },
           body: jsonEncode({"fileName": imageLink}),
         );
+        print("image is deleted");
       } catch (err) {
         print(err);
       }
@@ -216,13 +214,16 @@ class _myPageState extends State<myPage> {
             await MultipartFile.fromFile(file.path, filename: fileName),
       });
       Dio dio = new Dio();
+      // dio.options.headers['content-Type'] = 'application/json';
+      // dio.options.headers["authorization"] = token;
       var response;
       try {
         response = await dio.post(
-            'http://121.147.203.126:3000/api/profile/imgUpload/$userId$loginOption',
+            'http://121.147.203.126:8000/api/s3/images/$id',
             data: formData);
+        _uploadedFileURL =
+            response.data["location"]; // get responsed image link
         setState(() {
-          _uploadedFileURL = response.data["location"];
           imageLink = _uploadedFileURL;
         });
         print("Printing after upload imagelink " + _uploadedFileURL);
@@ -237,17 +238,18 @@ class _myPageState extends State<myPage> {
 
   _saveURL(_uploadedFileURL) async {
     try {
-      await http
-          .put(
-            "http://121.147.203.126:3000/updateImage/$userId$loginOption",
-            headers: <String, String>{
-              'Content-Type': 'application/json; charset=UTF-8',
-            },
-            body: jsonEncode({"URL": _uploadedFileURL}),
-          )
-          .then((value) => print(value.body))
-          .catchError((err) => print(err));
-    } catch (error) {}
+      await http.patch(
+        "http://121.147.203.126:8000/api/users/$id",
+        headers: <String, String>{
+          'Content-Type': 'application/json; charset=UTF-8',
+          "Authorization": token
+        },
+        body: jsonEncode({"profile_url": _uploadedFileURL}),
+      );
+      print("updated image url");
+    } catch (error) {
+      print(error);
+    }
   }
 
   void _showPicker(context) {
@@ -266,9 +268,8 @@ class _myPageState extends State<myPage> {
                       title: new Text('겔러리'),
                       onTap: () async {
                         await _imgFromGallery();
-                        // print("Calling upload func");
+                        await uploadFile(_image);
 
-                        // print(_uploadedFileURL);
                         Navigator.of(context).pop();
                       }),
                   new ListTile(
@@ -279,7 +280,7 @@ class _myPageState extends State<myPage> {
                     title: new Text('카메라'),
                     onTap: () async {
                       await _imgFromCamera();
-                      // print("Calling upload func");
+                      await uploadFile(_image);
 
                       Navigator.of(context).pop();
                     },
@@ -292,6 +293,8 @@ class _myPageState extends State<myPage> {
                     title: new Text('삭제'),
                     onTap: () async {
                       await deleteFile();
+                      await _saveURL("");
+
                       setState(() {
                         _image = null;
                         imageLink = "";
@@ -307,6 +310,11 @@ class _myPageState extends State<myPage> {
   }
 
   Future withdrawalUser() async {
+    // sharedPreferences = await SharedPreferences.getInstance();
+    // token = sharedPreferences.getString("uahageUserToken");
+    // String id = sharedPreferences.getString("uahageUserId");
+    print("token: $token");
+    print("id: $id");
     if (imageLink != "") {
       try {
         // print(ss);
@@ -321,17 +329,20 @@ class _myPageState extends State<myPage> {
         print(err);
       }
     }
+
     try {
-      var res = await http
-          .delete("http://121.147.203.126:3000/deleteStar/$userId$loginOption");
+      var res = await http.delete("http://121.147.203.126:8000/api/users/$id",
+          headers: <String, String>{"Authorization": token});
       print(jsonDecode(res.body));
-    } catch (e) {}
-    try {
-      var res = await http.delete(
-          "http://121.147.203.126:3000/deleteProfile/$userId$loginOption");
-      print(jsonDecode(res.body));
-      return jsonDecode(res.body)["message"];
-    } catch (e) {}
+      var data = jsonDecode(res.body);
+      if (res.statusCode == 200) {
+        return data["message"];
+      } else {
+        throw (data["message"]);
+      }
+    } catch (e) {
+      return Future.error(e);
+    }
   }
 
   bool isIOS = Platform.isIOS;
@@ -393,7 +404,7 @@ class _myPageState extends State<myPage> {
                               ),
                             );
                           } else if (imageLink != "" && imageLink != null) {
-                            print("2");
+                            print("2 $imageLink");
                             return Container(
                               decoration: BoxDecoration(
                                 shape: BoxShape.circle,
@@ -503,6 +514,8 @@ class _myPageState extends State<myPage> {
                                                         ? null
                                                         : imageLink
                                                     : _image,
+                                                id: id,
+                                                token: token,
                                               )),
                                     );
 
@@ -548,7 +561,7 @@ class _myPageState extends State<myPage> {
                       onTap: onEdit
                           ? () {
                               setState(() {
-                                gender = "boy";
+                                gender = "M";
                                 genderImage[0] = !genderImage[0];
                                 genderImage[1] = false;
                               });
@@ -568,7 +581,7 @@ class _myPageState extends State<myPage> {
                         onTap: onEdit
                             ? () {
                                 setState(() {
-                                  gender = "girl";
+                                  gender = "F";
                                   genderImage[1] = !genderImage[1];
                                   genderImage[0] = false;
                                 });
@@ -791,8 +804,9 @@ class _myPageState extends State<myPage> {
                                         SharedPreferences prefs =
                                             await SharedPreferences
                                                 .getInstance();
-                                        await prefs.remove("uahageUserId");
-                                        await prefs.remove("uahageLoginOption");
+                                        // await prefs.remove("uahageUserEmail");
+                                        // await prefs.remove("uahageLoginOption");
+                                        await prefs.clear();
                                         Navigator.pop(context);
 
                                         Navigator.pushAndRemoveUntil(
@@ -883,10 +897,12 @@ class _myPageState extends State<myPage> {
                                               SharedPreferences prefs =
                                                   await SharedPreferences
                                                       .getInstance();
-                                              await prefs
-                                                  .remove("uahageUserId");
-                                              await prefs
-                                                  .remove("uahageLoginOption");
+                                              // await prefs
+                                              //     .remove("uahageUserEmail");
+                                              // await prefs
+                                              //     .remove("uahageLoginOption");
+                                              // await prefs.clear();
+
                                               //delete data in the database
                                               showDialog(
                                                 context: context,
@@ -897,7 +913,8 @@ class _myPageState extends State<myPage> {
                                                       print("hasdata");
                                                       WidgetsBinding.instance
                                                           .addPostFrameCallback(
-                                                              (_) {
+                                                              (_) async {
+                                                        await prefs.clear();
                                                         Navigator.of(context).pushReplacement(
                                                             MaterialPageRoute(
                                                                 builder: (BuildContext
@@ -906,15 +923,10 @@ class _myPageState extends State<myPage> {
                                                       });
                                                     } else if (snapshot
                                                         .hasError) {
-                                                      WidgetsBinding.instance
-                                                          .addPostFrameCallback(
-                                                              (_) {
-                                                        Navigator.of(context).pushReplacement(
-                                                            MaterialPageRoute(
-                                                                builder: (BuildContext
-                                                                        context) =>
-                                                                    withdrawal()));
-                                                      });
+                                                      return AlertDialog(
+                                                        title: Text(
+                                                            "${snapshot.error}"),
+                                                      );
                                                     }
 
                                                     return Center(

@@ -52,40 +52,50 @@ class _registrationPageState extends State<registrationPage> {
     });
   }
 
+  // check for nickname whether exists in the database
+  // if it is being used returns false
+  // else returns true
   Future checkNickname() async {
     var data;
     try {
-      var response =
-          await http.get("http://211.223.46.144:3000/getNicknames/$nickName");
-      if (response.statusCode == 200) {
-        data = jsonDecode(response.body)["message"];
-
+      var response = await http.post(
+        "http://121.147.203.126:8000/api/auth/check",
+        headers: <String, String>{
+          'Content-Type': 'application/json; charset=UTF-8',
+        },
+        body: jsonEncode({"nickname": nickName}),
+      );
+      // print("length " + jsonDecode(response.body).toString());
+      data = jsonDecode(response.body)["data"];
+      print(data);
+      if (data == false) {
         setState(() {
           isIdValid = true;
         });
-        return data;
+        return "사용 가능한 닉네임입니다.";
       } else {
-        data = jsonDecode(response.body)["message"];
         setState(() {
           isIdValid = false;
         });
-        return data;
+        return "이미 사용중인 닉네임입니다.";
       }
     } catch (err) {
-      // print(err);
-      return data["message"];
+      print(err);
+      return Future.error(err);
     }
   }
 
   Future saveToDatabase(String type) async {
+    SharedPreferences sharedPreferences = await SharedPreferences.getInstance();
     Map<String, dynamic> ss = type == "withNickname"
         ? {
             "email": userId + loginOption,
             "nickname": nickName,
             "gender": gender,
-            "birthday": birthday,
+            "birthday": "20",
             "age": userAge,
             "URL": "",
+            "rf_token": ""
           }
         : {
             "email": userId + loginOption,
@@ -94,23 +104,34 @@ class _registrationPageState extends State<registrationPage> {
             "birthday": "",
             "age": "",
             "URL": "",
+            "rf_token": ""
           };
-    // print(ss);
+    print(ss);
     var response = await http.post(
-      "http://211.223.46.144:3000/saveUser",
+      "http://121.147.203.126:8000/api/auth/signup",
       headers: <String, String>{
         'Content-Type': 'application/json; charset=UTF-8',
       },
       body: jsonEncode(ss),
     );
-    response.statusCode == 200
-        ? setState(() {
-            saveError = false;
-          })
-        : setState(() {
-            saveError = true;
-          });
-    return jsonDecode(response.body)["message"];
+    if (response.statusCode == 200) {
+      setState(() {
+        saveError = false;
+      });
+      var data = jsonDecode(response.body);
+      String token = data['data']['token'];
+      String id = data['data']['id'].toString();
+      print("token $token");
+      await sharedPreferences.setString("uahageUserToken", token);
+      await sharedPreferences.setString("uahageUserId", id);
+
+      return data["message"];
+    } else {
+      setState(() {
+        saveError = true;
+      });
+      return Future.error(jsonDecode(response.body)["message"]);
+    }
   }
 
   SpinKitThreeBounce buildSpinKitThreeBounce(double size, double screenWidth) {
@@ -263,7 +284,7 @@ class _registrationPageState extends State<registrationPage> {
                     Padding(padding: EdgeInsets.only(left: 80.w)),
                     InkWell(
                       onTap: () {
-                        _pressedbaby('boy');
+                        _pressedbaby('M');
                       },
                       child: Column(children: <Widget>[
                         Container(
@@ -277,7 +298,7 @@ class _registrationPageState extends State<registrationPage> {
                     Padding(padding: EdgeInsets.only(left: 98.w)),
                     InkWell(
                       onTap: () {
-                        _pressedbaby('girl');
+                        _pressedbaby('F');
                       },
                       child: Column(children: <Widget>[
                         Container(
@@ -501,10 +522,11 @@ class _registrationPageState extends State<registrationPage> {
                           SharedPreferences prefs =
                               await SharedPreferences.getInstance();
 
-                          await prefs.setString('uahageUserId', userId);
+                          await prefs.setString('uahageUserEmail', userId);
                           await prefs.setString(
                               "uahageLoginOption", loginOption);
                           showDialog(
+                            barrierDismissible: false,
                             context: context,
                             builder: (context) => FutureBuilder(
                                 future: saveToDatabase("withNickname"),
@@ -576,7 +598,8 @@ class _registrationPageState extends State<registrationPage> {
                                 SharedPreferences prefs =
                                     await SharedPreferences.getInstance();
 
-                                await prefs.setString('uahageUserId', userId);
+                                await prefs.setString(
+                                    'uahageUserEmail', userId);
                                 await prefs.setString(
                                     "uahageLoginOption", loginOption);
                                 Navigator.pushReplacement(
@@ -661,7 +684,7 @@ class _registrationPageState extends State<registrationPage> {
   _pressedbaby(String value) {
     print(value);
     print(boy);
-    if (value == 'boy') {
+    if (value == 'M') {
       if (boy) {
         setState(() {
           gender = value;
@@ -670,7 +693,7 @@ class _registrationPageState extends State<registrationPage> {
         });
       }
     }
-    if (value == 'girl') {
+    if (value == 'F') {
       if (girl) {
         setState(() {
           gender = value;
@@ -807,7 +830,7 @@ class _registrationPageState extends State<registrationPage> {
       });
     } else {
       setState(() {
-        userAge = ">60";
+        userAge = "60";
         changeimage[0] = false;
         changeimage[1] = false;
         changeimage[2] = false;

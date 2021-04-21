@@ -14,7 +14,15 @@ class UserModify extends StatefulWidget {
   final loginOption;
   final userId;
   final dynamic recievedImage;
-  const UserModify({Key key, this.loginOption, this.userId, this.recievedImage})
+  final token;
+  final id;
+  const UserModify(
+      {Key key,
+      this.loginOption,
+      this.userId,
+      this.recievedImage,
+      this.token,
+      this.id})
       : super(key: key);
   @override
   _UserModifyState createState() => _UserModifyState();
@@ -39,30 +47,36 @@ class _UserModifyState extends State<UserModify> {
   String imageLink = "";
   bool isIOS = Platform.isIOS;
   dynamic recievedImage;
+  String id, token;
 
   toast show_toast = new toast();
   Future checkNickname() async {
     var data;
-    print("nick in func: $nickName");
     try {
-      var response =
-          await http.get("http://211.223.46.144:3000/getNicknames/$nickName");
-      if (response.statusCode == 200) {
-        data = jsonDecode(response.body)["message"];
+      var response = await http.post(
+        "http://121.147.203.126:8000/api/auth/check",
+        headers: <String, String>{
+          'Content-Type': 'application/json; charset=UTF-8',
+        },
+        body: jsonEncode({"nickname": nickName}),
+      );
+      // print("length " + jsonDecode(response.body).toString());
+      data = jsonDecode(response.body)["data"];
+      print(data);
+      if (data == false) {
         setState(() {
           isIdValid = true;
         });
-        return data;
+        return "사용 가능한 닉네임입니다.";
       } else {
-        data = jsonDecode(response.body)["message"];
         setState(() {
           isIdValid = false;
         });
-        return data;
+        return "이미 사용중인 닉네임입니다.";
       }
     } catch (err) {
-      // print(err);
-      return err["message"];
+      print(err);
+      return err;
     }
   }
 
@@ -124,17 +138,19 @@ class _UserModifyState extends State<UserModify> {
 
   Future deleteFile() async {
     try {
-      await http
-          .put(
-            "http://211.223.46.144:3000/updateImage/$userId$loginOption",
-            headers: <String, String>{
-              'Content-Type': 'application/json; charset=UTF-8',
-            },
-            body: jsonEncode({"URL": ""}),
-          )
-          .then((value) => print(value.body))
-          .catchError((err) => print(err));
-    } catch (error) {}
+      print(imageLink);
+      await http.post(
+        "http://121.147.203.126:8000/api/s3/images-delete",
+        headers: <String, String>{
+          'Content-Type': 'application/json; charset=UTF-8',
+          "Authorization": token
+        },
+        body: jsonEncode({"fileName": imageLink}),
+      );
+    } catch (err) {
+      print(err);
+    }
+    await _saveURL("");
   }
 
   Future _imgFromCamera() async {
@@ -145,7 +161,7 @@ class _UserModifyState extends State<UserModify> {
       recievedImage = null;
       _image = File(image.path);
     });
-    await uploadFile(_image);
+    // await uploadFile(_image);
   }
 
   Future _imgFromGallery() async {
@@ -164,9 +180,10 @@ class _UserModifyState extends State<UserModify> {
       try {
         // print(ss);
         await http.post(
-          "http://211.223.46.144:3000/api/profile/deleteImage",
+          "http://121.147.203.126:8000/api/s3/images-delete",
           headers: <String, String>{
             'Content-Type': 'application/json; charset=UTF-8',
+            "Authorization": token
           },
           body: jsonEncode({"fileName": imageLink}),
         );
@@ -182,10 +199,14 @@ class _UserModifyState extends State<UserModify> {
             await MultipartFile.fromFile(file.path, filename: fileName),
       });
       Dio dio = new Dio();
+      // dio.options.headers['content-Type'] = 'application/json';
+      // dio.options.headers["authorization"] = token;
       var response;
       try {
+        print(id);
+
         response = await dio.post(
-            'http://211.223.46.144:3000/api/profile/imgUpload/$userId$loginOption',
+            'http://121.147.203.126:8000/api/s3/images/$id',
             data: formData);
         setState(() {
           _uploadedFileURL = response.data["location"];
@@ -204,12 +225,13 @@ class _UserModifyState extends State<UserModify> {
   _saveURL(_uploadedFileURL) async {
     try {
       await http
-          .put(
-            "http://211.223.46.144:3000/updateImage/$userId$loginOption",
+          .patch(
+            "http://121.147.203.126:8000/api/users/$id",
             headers: <String, String>{
               'Content-Type': 'application/json; charset=UTF-8',
+              "Authorization": token
             },
-            body: jsonEncode({"URL": _uploadedFileURL}),
+            body: jsonEncode({"profile_url": _uploadedFileURL}),
           )
           .then((value) => print(value.body))
           .catchError((err) => print(err));
@@ -217,22 +239,29 @@ class _UserModifyState extends State<UserModify> {
   }
 
   Future updateNickname() async {
-    Map<String, dynamic> ss = {
-      "userId": userId + loginOption,
-      // "oldNickname": oldNickname,
-      "gender": gender,
-      "birthday": birthday,
-      "age": userAge,
-    };
-    print(ss);
-    var response = await http.post(
-      "http://211.223.46.144:3000/updateNickname/$nickName",
-      headers: <String, String>{
-        'Content-Type': 'application/json; charset=UTF-8',
-      },
-      body: jsonEncode(ss),
-    );
-    return jsonDecode(response.body)["message"];
+    try {
+      Map<String, dynamic> ss = {
+        "nickname": nickName,
+        "gender": gender,
+        "birthday": birthday,
+        "age": userAge,
+        "rf_token": token,
+      };
+      print(ss);
+      var response = await http.put(
+        "http://121.147.203.126:8000/api/users/$id",
+        headers: <String, String>{
+          'Content-Type': 'application/json; charset=UTF-8',
+          "Authorization": token
+        },
+        body: jsonEncode(ss),
+      );
+      return response.statusCode == 200
+          ? jsonDecode(response.body)["message"]
+          : Future.error(jsonDecode(response.body)["error"]);
+    } catch (err) {
+      return Future.error(err);
+    }
   }
 
   @override
@@ -241,6 +270,8 @@ class _UserModifyState extends State<UserModify> {
     loginOption = widget.loginOption;
     userId = widget.userId ?? "";
     recievedImage = widget.recievedImage ?? null;
+    id = widget.id;
+    token = widget.token;
   }
 
   @override
@@ -523,7 +554,7 @@ class _UserModifyState extends State<UserModify> {
                       InkWell(
                         onTap: () {
                           setState(() {
-                            gender = "boy";
+                            gender = "M";
                             genderImage[0] = !genderImage[0];
                             genderImage[1] = false;
                           });
@@ -541,7 +572,7 @@ class _UserModifyState extends State<UserModify> {
                         child: InkWell(
                           onTap: () {
                             setState(() {
-                              gender = "girl";
+                              gender = "F";
                               genderImage[1] = !genderImage[1];
                               genderImage[0] = false;
                             });
@@ -786,6 +817,7 @@ class _UserModifyState extends State<UserModify> {
                                 print(userAge);
                                 await uploadFile(_image);
                                 showDialog(
+                                  barrierDismissible: false,
                                   context: context,
                                   builder: (context) => FutureBuilder(
                                     future: updateNickname(),
@@ -916,7 +948,7 @@ class _UserModifyState extends State<UserModify> {
       });
     } else {
       setState(() {
-        userAge = ">60";
+        userAge = "60";
         changeimage[0] = false;
         changeimage[1] = false;
         changeimage[2] = false;

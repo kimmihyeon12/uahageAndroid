@@ -1,8 +1,5 @@
-import 'dart:io';
 import 'package:flutter/services.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_device_type/flutter_device_type.dart';
-import 'package:flutter_spinkit/flutter_spinkit.dart';
 import 'dart:convert';
 import 'package:uahage/View/Navigations/Navigationbar.dart';
 import 'package:uahage/View/Auth/announce.dart';
@@ -40,27 +37,29 @@ class _agreementPageState extends State<agreementPage> {
     });
   }
 
+  // check for nickname whether registered
+  // if true navigate to Navigation.dart
+  // else navigate to registration.dart
   Future checkNickname() async {
     var data;
+    SharedPreferences sharedPreferences = await SharedPreferences.getInstance();
+    String id = sharedPreferences.getString("uahageUserId") ?? "";
+    String userId = "$id";
+    // Map<String, dynamic> ss =;
     try {
-      var response = await http.get(
-          "http://211.223.46.144:3000/getEmail?email=$_accountEmail$loginOption");
-      print("length " + response.body);
-      if (response.statusCode == 200) {
-        data = jsonDecode(response.body)["length"];
-
-        setState(() {
-          data == 1 ? isAlreadyRegistered = true : isAlreadyRegistered = false;
-        });
-      }
-      // else {
-      //   data = jsonDecode(response.body)["message"];
-
-      //   return data;
-      // }
+      var response = await http.post(
+        "http://121.147.203.126:8000/api/auth/check",
+        headers: <String, String>{
+          'Content-Type': 'application/json; charset=UTF-8',
+        },
+        body: jsonEncode({"userId": userId}),
+      );
+      // print("length " + jsonDecode(response.body).toString());
+      data = jsonDecode(response.body)["data"];
+      return data == false ? false : true;
     } catch (err) {
-      // print(err);
-      return data["message"];
+      print(err);
+      return Future.error(err);
     }
   }
 
@@ -72,7 +71,7 @@ class _agreementPageState extends State<agreementPage> {
       await _initTexts();
       // await _create();
       // await _saveUserId();
-      await checkNickname();
+      isAlreadyRegistered = await checkNickname();
       if (isAlreadyRegistered) {
         await _saveUserId();
         Navigator.pushReplacement(
@@ -132,7 +131,7 @@ class _agreementPageState extends State<agreementPage> {
   // _accounteamail 내부 db 저장
   _saveUserId() async {
     SharedPreferences prefs = await SharedPreferences.getInstance();
-    await prefs.setString('uahageUserId', _accountEmail);
+    await prefs.setString('uahageUserEmail', _accountEmail);
     await prefs.setString("uahageLoginOption", loginOption);
     // setState(() {
     //   //userId = (prefs.getString('userId') ?? "");
@@ -158,7 +157,7 @@ class _agreementPageState extends State<agreementPage> {
       });
       print(_accountEmail);
       // await _saveUserId();
-      await checkNickname();
+      isAlreadyRegistered = await checkNickname();
       // create database
       if (isAlreadyRegistered) {
         await _saveUserId();
@@ -201,40 +200,19 @@ class _agreementPageState extends State<agreementPage> {
   bool check2 = false;
   bool check3 = false;
   bool check4 = false;
-  List<bool> checks = [false, false, false, false];
-
-  List<String> listTile = [
-    "모두 동의합니다.",
-    "[필수] 이용약관 동의",
-    "[필수] 이용약관 동의",
-    "[필수] 이용약관 동의"
-  ];
-  bool isIOS = Platform.isIOS;
-  bool isIphoneX = Device.get().isIphoneX;
 
   appbar bar = new appbar();
   @override
   Widget build(BuildContext context) {
     KakaoContext.clientId = "581f27a7aed8a99e5b0a78b33c855dab";
 
-    isIOS
-        ? SystemChrome.setSystemUIOverlayStyle(SystemUiOverlayStyle.dark
-            .copyWith(
-                statusBarBrightness:
-                    Brightness.dark // Dark == white status bar -- for IOS.
-                ))
-        : SystemChrome.setSystemUIOverlayStyle(SystemUiOverlayStyle(
-            systemNavigationBarColor: Color(0xffd9d4d5), // navigation bar color
-            statusBarColor: Color(0xffd9d4d5), // status bar color
-          ));
+    SystemChrome.setSystemUIOverlayStyle(SystemUiOverlayStyle(
+      systemNavigationBarColor: Color(0xffd9d4d5), // navigation bar color
+      statusBarColor: Color(0xffd9d4d5), // status bar color
+    ));
 
-    if (isIphoneX) {
-      ScreenUtil.init(context, width: 5076, height: 2345);
-    } else if (isIOS) {
-      ScreenUtil.init(context, width: 1390, height: 781.5);
-    } else {
-      ScreenUtil.init(context, width: 1501, height: 2667);
-    }
+    ScreenUtil.init(context, width: 1501, height: 2667);
+
     if (check2 && check3 && check4) {
       setState(() {
         check1 = true;
@@ -267,78 +245,6 @@ class _agreementPageState extends State<agreementPage> {
             ),
 
             // Agreement
-
-            // Container(
-            //   margin: EdgeInsets.only(top: 441 .w),
-            //   child: StatefulBuilder(
-            //       builder: (BuildContext context, StateSetter setState) {
-            //     return Checkbox(
-            //       value: check1,
-            //       onChanged: (value) => setState(() {
-            //         check1 = value;
-            //         print(check1);
-            //       }),
-            //       activeColor: Colors.pinkAccent,
-            //       checkColor: Colors.white,
-            //     );
-            //   }),
-            // ),
-            // Container(
-            //   margin: EdgeInsets.only(top: 156 .h),
-            //   width: 1296 .w,
-            //   height: 837 .h,
-            //   decoration: BoxDecoration(
-            //     borderRadius: BorderRadius.circular(14.0),
-            //     border: Border.all(width: 0.1),
-            //   ),
-            //   child: ListView.separated(
-            //       shrinkWrap: true,
-            //       itemBuilder: (context, index) {
-            //         return ListTile(
-            //           contentPadding:
-            //               EdgeInsets.symmetric(vertical: 0.0, horizontal: 0.0),
-            //           leading: StatefulBuilder(builder:
-            //               (BuildContext context, StateSetter setState) {
-            //             return Checkbox(
-            //               value: checks[index],
-            //               onChanged: (value) => setState(() {
-            //                 checks[index] = value;
-            //               }),
-            //               activeColor: Colors.pinkAccent,
-            //               checkColor: Colors.white,
-            //             );
-            //           }),
-            //           title: index == 0
-            //               ? Text('${listTile[index]}',
-            //                   style: TextStyle(
-            //                       color: const Color(0xff000000),
-            //                       fontWeight: FontWeight.w700,
-            //                       fontFamily: "NotoSansCJKkr_Bold",
-            //                       fontStyle: FontStyle.normal,
-            //                       fontSize: 62.5 .w),
-            //                   textAlign: TextAlign.left)
-            //               : Text('${listTile[index]}',
-            //                   style: TextStyle(
-            //                       color: const Color(0xff666666),
-            //                       fontWeight: FontWeight.w500,
-            //                       fontFamily: "NotoSansCJKkr_Medium",
-            //                       fontStyle: FontStyle.normal,
-            //                       fontSize: 62.5 .w),
-            //                   textAlign: TextAlign.left),
-            //           trailing: index == 0
-            //               ? null
-            //               : Container(
-            //                   height: 74 .h,
-            //                   child: Image.asset(
-            //                       "./assets/agreementPage/next.png")),
-            //         );
-            //       },
-            //       separatorBuilder: (context, index) {
-            //         return Divider();
-            //       },
-            //       itemCount: 4),
-            // ),
-
             Container(
               margin: EdgeInsets.only(top: 156.h),
               width: 1296.w,
@@ -590,6 +496,10 @@ class _agreementPageState extends State<agreementPage> {
                       showDialog(
                         context: context,
                         builder: (_) => AlertDialog(
+                          shape: RoundedRectangleBorder(
+                            borderRadius:
+                                BorderRadius.all(Radius.circular(20.0)),
+                          ),
                           title: // 이용약관에 동의하셔야 합니다.
                               Text("이용약관에 동의하셔야 합니다.",
                                   style: TextStyle(
