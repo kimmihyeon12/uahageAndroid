@@ -6,6 +6,7 @@ import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:provider/provider.dart';
 import 'package:uahage/Provider/locationProvider.dart';
 import 'package:uahage/Provider/ConnectivityStatus.dart';
+
 class IndexMap extends StatefulWidget {
   @override
   _IndexMapState createState() => _IndexMapState();
@@ -29,19 +30,17 @@ class _IndexMapState extends State<IndexMap> {
           onWebViewCreated: (WebViewController webViewController) {
             controller = webViewController;
             controller.loadUrl(
-                'http://13.209.41.43/map/getPos?lat=$latitude&long=$longitude');
+                'http:///121.147.203.126:8000/maps?lat=$latitude&lon=$longitude');
             print(controller.currentUrl().toString());
           },
           javascriptMode: JavascriptMode.unrestricted,
         ),
         Center(
             child: Image.network(
-              'https://i.pinimg.com/originals/b6/b1/d6/b6b1d64609f266d8f236752d8551f26f.gif',
-              width: 500.w,
-            )),
+          'https://i.pinimg.com/originals/b6/b1/d6/b6b1d64609f266d8f236752d8551f26f.gif',
+          width: 500.w,
+        )),
       ]),
     );
   }
-
-
 }

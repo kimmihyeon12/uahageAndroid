@@ -53,8 +53,8 @@ class _myPageState extends State<myPage> {
       userId = widget.userId ?? "";
       // oldNickname = userId != "" ? getMyNickname().toString() : "";
     });
-    // print("loginOption" + loginOption);
-    // print("widgetID" + widget.userId);
+    // //print("loginOption" + loginOption);
+    // //print("widgetID" + widget.userId);
     if (loginOption != "login") {
       // getMyAvatar();
       getMyInfo();
@@ -73,10 +73,10 @@ class _myPageState extends State<myPage> {
       var response = await http.get("http://121.147.203.126:8000/api/users/$id",
           headers: <String, String>{"Authorization": token});
       var data = jsonDecode(response.body)['data']["result"][0];
-      print("printing info " + data.toString());
+      //print("printing info " + data.toString());
       // setting profile image
       String _imageLink = data["profile_url"];
-      print("_imageLink from myInfo $_imageLink");
+      //print("_imageLink from myInfo $_imageLink");
       if (_imageLink == null || _imageLink == "")
         setState(() {
           imageLink = "";
@@ -105,7 +105,7 @@ class _myPageState extends State<myPage> {
         _change(data["parent_age"].toString());
       }
     } catch (err) {
-      print(err);
+      //print(err);
       // return err["message"];
     }
   }
@@ -116,8 +116,8 @@ class _myPageState extends State<myPage> {
           "http://121.147.203.126:3000/getAvatar/?email=$userId$loginOption");
       if (response.statusCode == 200) {
         String _imageLink = jsonDecode(response.body)["image"].toString();
-        // print("response" + jsonDecode(response.body)["image"]);
-        print("imgaLink " + _imageLink);
+        // //print("response" + jsonDecode(response.body)["image"]);
+        //print("imgaLink " + _imageLink);
         if (_imageLink == null || _imageLink == "")
           setState(() {
             imageLink = "";
@@ -128,13 +128,13 @@ class _myPageState extends State<myPage> {
           });
       }
     } catch (err) {
-      print(err);
+      //print(err);
       return err;
     }
   }
 
   Future deleteFile() async {
-    print(imageLink);
+    //print(imageLink);
     try {
       await http.post(
         "http://121.147.203.126:8000/api/s3/images-delete",
@@ -145,7 +145,7 @@ class _myPageState extends State<myPage> {
         body: jsonEncode({"fileName": imageLink}),
       );
     } catch (err) {
-      print(err);
+      //print(err);
     }
   }
 
@@ -154,7 +154,7 @@ class _myPageState extends State<myPage> {
     try {
       var response = await http.get("http://121.147.203.126:8000/api/users/$id",
           headers: <String, String>{"Authorization": token});
-      // print("widgetID" + userId);
+      // //print("widgetID" + userId);
       if (response.statusCode == 200) {
         data = json.decode(response.body)["data"]["result"][0];
         if (data.length == 0) {
@@ -164,7 +164,7 @@ class _myPageState extends State<myPage> {
         }
       }
     } catch (err) {
-      print(err);
+      //print(err);
       //return data["nickname"];
     }
   }
@@ -185,14 +185,14 @@ class _myPageState extends State<myPage> {
     setState(() {
       _image = File(image.path);
     });
-    print("from gallery $imageLink");
+    //print("from gallery $imageLink");
   }
 
   uploadFile(File file) async {
     // delete image from s3 if exists
     if (imageLink != "") {
       try {
-        // print(ss);
+        // //print(ss);
         await http.post(
           "http://121.147.203.126:8000/api/s3/images-delete",
           headers: <String, String>{
@@ -201,9 +201,9 @@ class _myPageState extends State<myPage> {
           },
           body: jsonEncode({"fileName": imageLink}),
         );
-        print("image is deleted");
+        //print("image is deleted");
       } catch (err) {
-        print(err);
+        //print(err);
       }
     }
 
@@ -226,13 +226,13 @@ class _myPageState extends State<myPage> {
         setState(() {
           imageLink = _uploadedFileURL;
         });
-        print("Printing after upload imagelink " + _uploadedFileURL);
+        //print("Printing after upload imagelink " + _uploadedFileURL);
         await _saveURL(_uploadedFileURL);
       } catch (err) {
-        print(err);
+        //print(err);
       }
     } catch (err) {
-      print(err);
+      //print(err);
     }
   }
 
@@ -246,9 +246,9 @@ class _myPageState extends State<myPage> {
         },
         body: jsonEncode({"profile_url": _uploadedFileURL}),
       );
-      print("updated image url");
+      //print("updated image url");
     } catch (error) {
-      print(error);
+      //print(error);
     }
   }
 
@@ -313,11 +313,11 @@ class _myPageState extends State<myPage> {
     // sharedPreferences = await SharedPreferences.getInstance();
     // token = sharedPreferences.getString("uahageUserToken");
     // String id = sharedPreferences.getString("uahageUserId");
-    print("token: $token");
-    print("id: $id");
+    //print("token: $token");
+    //print("id: $id");
     if (imageLink != "") {
       try {
-        // print(ss);
+        // //print(ss);
         await http.post(
           "http://121.147.203.126:3000/api/profile/deleteImage",
           headers: <String, String>{
@@ -326,14 +326,14 @@ class _myPageState extends State<myPage> {
           body: jsonEncode({"fileName": imageLink}),
         );
       } catch (err) {
-        print(err);
+        //print(err);
       }
     }
 
     try {
       var res = await http.delete("http://121.147.203.126:8000/api/users/$id",
           headers: <String, String>{"Authorization": token});
-      print(jsonDecode(res.body));
+      //print(jsonDecode(res.body));
       var data = jsonDecode(res.body);
       if (res.statusCode == 200) {
         return data["message"];
@@ -393,8 +393,8 @@ class _myPageState extends State<myPage> {
                           // your code here
 
                           if (_image != null) {
-                            print("1");
-                            print("here " + imageLink);
+                            //print("1");
+                            //print("here " + imageLink);
                             return Container(
                               decoration: BoxDecoration(
                                 shape: BoxShape.circle,
@@ -404,7 +404,7 @@ class _myPageState extends State<myPage> {
                               ),
                             );
                           } else if (imageLink != "" && imageLink != null) {
-                            print("2 $imageLink");
+                            //print("2 $imageLink");
                             return Container(
                               decoration: BoxDecoration(
                                 shape: BoxShape.circle,
@@ -414,7 +414,7 @@ class _myPageState extends State<myPage> {
                               ),
                             );
                           } else {
-                            print("3");
+                            //print("3");
                             return Container(
                               decoration: BoxDecoration(
                                 shape: BoxShape.circle,
@@ -468,12 +468,12 @@ class _myPageState extends State<myPage> {
                               future: getMyNickname(),
                               builder: (context, snapshot) {
                                 if (snapshot.hasData) {
-                                  // print("hasdata " + snapshot.data);
+                                  // //print("hasdata " + snapshot.data);
                                   return snapshot.data != ""
                                       ? nickNameShow(snapshot.data, 1500.w)
                                       : nickNameShow("우아하게", 1500.w);
                                 } else if (snapshot.hasError) {
-                                  // print("haserror " + snapshot.error);
+                                  // //print("haserror " + snapshot.error);
                                   return nickNameShow(
                                       "${snapshot.error}", 1500.w);
                                 }
@@ -502,7 +502,7 @@ class _myPageState extends State<myPage> {
                                 )
                               : InkWell(
                                   onTap: () async {
-                                    // print(_uploadedFileURL);
+                                    // //print(_uploadedFileURL);
                                     final result = await Navigator.push(
                                       context,
                                       MaterialPageRoute(
@@ -910,7 +910,7 @@ class _myPageState extends State<myPage> {
                                                   future: withdrawalUser(),
                                                   builder: (context, snapshot) {
                                                     if (snapshot.hasData) {
-                                                      print("hasdata");
+                                                      //print("hasdata");
                                                       WidgetsBinding.instance
                                                           .addPostFrameCallback(
                                                               (_) async {

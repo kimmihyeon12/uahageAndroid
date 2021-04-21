@@ -1,7 +1,10 @@
+import 'dart:convert';
 import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:flutter_spinkit/flutter_spinkit.dart';
+import 'package:provider/provider.dart';
 import 'package:uahage/Model/bottom_helper.dart';
+import 'package:uahage/Provider/locationProvider.dart';
 import 'package:uahage/View/Navigations/HomeSub/listSub.dart';
 import 'package:webview_flutter/webview_flutter.dart';
 import 'package:page_transition/page_transition.dart';
@@ -10,17 +13,18 @@ import 'package:uahage/Widget/starManager.dart';
 import 'package:uahage/Widget/icon.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:uahage/Widget/indexMap.dart';
- 
+
 import 'package:uahage/Widget/showPopupMenu.dart';
+
 class searchPage extends StatefulWidget {
   searchPage(
       {Key key,
-        this.latitude,
-        this.longitude,
-        this.userId,
-        this.loginOption,
-        this.Area,
-        this.Locality})
+      this.latitude,
+      this.longitude,
+      this.userId,
+      this.loginOption,
+      this.Area,
+      this.Locality})
       : super(key: key);
   String latitude;
   String longitude;
@@ -43,6 +47,7 @@ class _searchPageState extends State<searchPage> {
   String loginOption = "";
   int index = 1;
   var Message;
+  LocationProvider lacationprovider;
 
   toast show_toast = new toast();
   List<String> star_color_list = List(2);
@@ -58,21 +63,40 @@ class _searchPageState extends State<searchPage> {
     true
   ];
 
-
   searchAddress(searchKey) async {
     // ignore: unnecessary_statements
     print(searchKey);
     searchKey != ""
         ? controller.loadUrl(
-        'http://13.209.41.43/map/getAddress?address=$searchKey')
-    // ignore: unnecessary_statements
+            'http://121.147.203.126:8000/map/getAddress?address=$searchKey')
+        // ignore: unnecessary_statements
         : null;
   }
 
   Future searchCategory(latitude, longitude) async {
-    print(grey_image);
-    controller.loadUrl(
-        "http://13.209.41.43/map/searchCategory?lat=$latitude&long=$longitude&menu=${grey_image[0]}&bed=${grey_image[1]}&tableware=${grey_image[2]}&meetingroom=${grey_image[3]}&diapers=${grey_image[4]}&playroom=${grey_image[5]}&carriages=${grey_image[6]}&nursingroom=${grey_image[7]}&chair=${grey_image[8]}&Area=$Area&Locality=$Locality");
+    var url = 'http://121.147.203.126:8000/maps/show-place';
+    Map<String, String> queryParams = {
+      "lat": "$latitude",
+      "lon": "$longitude",
+      "type": "filter",
+      "menu": "1",
+      "bed": "0",
+      "tableware": "0",
+      "meetingroom": "0",
+      "diapers": "0",
+      "playroom": "0",
+      "carriage": "0",
+      "nursingroom": "0",
+      "chair": "0"
+    };
+    var headers = {
+      HttpHeaders.contentTypeHeader: 'application/json',
+    };
+    String queryString = Uri(queryParameters: queryParams).query;
+    var requestUrl = url + '?' + queryString;
+    await controller.loadUrl(requestUrl, headers: headers);
+    // await controller.loadUrl(
+    //     "http://121.147.203.126:8000/maps/show-place?lat=35.1449589&lon=126.9216603&type=filter&menu=1&bed=0&tableware=0&meetingroom=0&diapers=0&playroom=0&carriage=0&nursingroom=0&chair=0");
   }
 
   StarManage starInsertDelete = new StarManage();
@@ -100,7 +124,7 @@ class _searchPageState extends State<searchPage> {
 
   Future getSubStarColor() async {
     star_color =
-    await starInsertDelete.getSubStarColor(userId, loginOption, Message[0]);
+        await starInsertDelete.getSubStarColor(userId, loginOption, Message[0]);
     setState(() {
       star_color = star_color;
     });
@@ -121,7 +145,6 @@ class _searchPageState extends State<searchPage> {
       Locality = widget.Locality ?? "";
     });
   }
-
 
   int position = 0;
   final key = UniqueKey();
@@ -148,14 +171,18 @@ class _searchPageState extends State<searchPage> {
   bool isIOS = Platform.isIOS;
   var isLoading = true;
 
-
   @override
   Widget build(BuildContext context) {
-    latitude == "" && longitude == "" ? currentLocation() : "";
+    print("WB" + latitude + "  " + longitude);
+    if (latitude == "" || longitude == "") currentLocation();
+    // setState(() {
+    //   latitude = widget.latitude;
+    //   longitude = widget.longitude;
+    //   position = 0;
+    // });
 
     ScreenUtil.init(context, width: 1500, height: 2667);
     return Scaffold(
-
       body: Stack(
         children: [
           IndexedStack(
@@ -165,16 +192,15 @@ class _searchPageState extends State<searchPage> {
                 key: key,
                 onPageFinished: doneLoading,
                 onPageStarted: startLoading,
-                // initialUrl: 'http://13.209.41.43/map',
-                onWebViewCreated: (WebViewController webViewController) {
+                // initialUrl: 'http://121.147.203.126:8000/map',
+                onWebViewCreated: (WebViewController webViewController) async {
                   controller = webViewController;
-                  controller.loadUrl(latitude == 'NaN' ||
-                      longitude == 'NaN' ||
-                      latitude == '' ||
-                      longitude == ''
-                      ? 'http://13.209.41.43/map/'
-                      : 'http://13.209.41.43/map/getPos?lat=$latitude&long=$longitude');
+                  print(latitude + "  " + longitude);
+                  await controller.loadUrl(
+                      'http:///121.147.203.126:8000/maps?lat=$latitude&lon=$longitude');
+                  print(controller.currentUrl().toString());
                 },
+
                 javascriptMode: JavascriptMode.unrestricted,
                 javascriptChannels: Set.from([
                   JavascriptChannel(
@@ -185,12 +211,16 @@ class _searchPageState extends State<searchPage> {
                         await getSubStarColor();
                         print("star_color: $star_color");
                         print("Message: $Message");
-                        showpopup.showPopUpbottomMenu(context, 2667.h, 1501.w,  Message,
+                        showpopup.showPopUpbottomMenu(
+                            context,
+                            2667.h,
+                            1501.w,
+                            Message,
                             index,
                             userId,
                             loginOption,
                             star_color,
-                        "search",
+                            "search",
                             "restaurant");
                       })
                 ]),
@@ -198,8 +228,6 @@ class _searchPageState extends State<searchPage> {
               IndexMap(),
             ],
           ),
-
-
           GestureDetector(
             onTap: () async {
               setState(() {
@@ -216,17 +244,10 @@ class _searchPageState extends State<searchPage> {
                 ];
               });
               List okButton = await showpopup.showPopUpMenu(
-                  context,
-                  2667.h,
-                  1501.w,
-                  latitude,
-                  longitude,
-                  grey_image);
+                  context, 2667.h, 1501.w, latitude, longitude, grey_image);
               if (okButton != null) {
-                grey_image = okButton;
                 await searchCategory(latitude, longitude);
               }
-
             },
             child: Container(
               decoration: BoxDecoration(
@@ -257,7 +278,7 @@ class _searchPageState extends State<searchPage> {
                     margin: EdgeInsets.only(left: 41.w),
                     width: 1200.w,
                     child: // 검색 조건을 설정해주세요
-                    Row(
+                        Row(
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       children: [
                         Text("검색 조건을 설정해주세요",
@@ -281,12 +302,19 @@ class _searchPageState extends State<searchPage> {
               ),
             ),
           ),
-
-
         ],
       ),
     );
   }
 
-  currentLocation() {}
+  currentLocation() async {
+    lacationprovider = Provider.of<LocationProvider>(context);
+    await lacationprovider.setCurrentLocation();
+    print("object");
+    setState(() {
+      latitude = lacationprovider.getlatitude;
+      longitude = lacationprovider.getlongitude;
+      position = 0;
+    });
+  }
 }
