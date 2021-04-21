@@ -1,6 +1,7 @@
 import 'dart:convert';
 import 'dart:io';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_spinkit/flutter_spinkit.dart';
 import 'package:provider/provider.dart';
 import 'package:uahage/Model/bottom_helper.dart';
@@ -91,6 +92,8 @@ class _searchPageState extends State<searchPage> {
     };
     var headers = {
       HttpHeaders.contentTypeHeader: 'application/json',
+      HttpHeaders.contentEncodingHeader: "utf-8",
+      "Access-Control-Allow-Origin": "*",
     };
     String queryString = Uri(queryParameters: queryParams).query;
     var requestUrl = url + '?' + queryString;
