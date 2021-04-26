@@ -17,6 +17,7 @@ import 'package:uahage/Model/examination_institution_helper.dart';
 import 'package:uahage/View/Navigations/HomeSub/listSub.dart';
 import 'package:flutter_config/flutter_config.dart';
 import 'package:uahage/API/bookMark.dart';
+import 'package:uahage/API/places.dart';
 
 class ListPage extends StatefulWidget {
 
@@ -92,7 +93,7 @@ class _ListPageState extends State<ListPage> {
   final GlobalKey<ScaffoldState> _scaffoldKey = GlobalKey<ScaffoldState>();
   ScrollController _scrollController = ScrollController();
   List<dynamic> sortedListData = [];
-  List<dynamic> sortedStarList = [];
+
   Map<double, dynamic> map = new Map();
   var sortedKeys;
   int pageNumber = 0;
@@ -108,8 +109,6 @@ class _ListPageState extends State<ListPage> {
     userId = widget.userId ?? "";
     latitude = widget.latitude ?? "";
     longitude = widget.longitude ?? "";
-    Area = widget.Area ?? "";
-    Locality = widget.Locality ?? "";
     tableType = widget.tableType ?? "";
     myFuture = _getDataList();
     super.initState();
@@ -130,42 +129,9 @@ class _ListPageState extends State<ListPage> {
 
 
   Future<List<dynamic>> _getDataList() async {
-    if (tableType == 'restaurant') {
-      place_code = 1;
-    } else if (tableType == 'Examination_institution') {
-      place_code = 2;
-    } else if (tableType == 'Experience_center') {
-      place_code = 6;
-    } else if (tableType == 'Kids_cafe') {
-      place_code = 5;
-    }
-
-    final response = await http.get(
-        url+'/api/places?place_code=$place_code&lat=$latitude&lon=$longitude&pageNumber=$pageNumber&user_id=$userId');
-    List responseJson = json.decode(response.body)["data"]["rows"];
-    if (json.decode(response.body)["message"] == false) {
-    } else {
-      var currentData;
-      for (var data in responseJson) {
-        print(data);
-        if (tableType == 'restaurant') {
-          currentData = Restaurant.fromJson(data);
-        } else if (tableType == 'Examination_institution') {
-          currentData = examinationinstitution.fromJson(data);
-        } else if (tableType == 'Experience_center') {
-          currentData = Experiencecenter.fromJson(data);
-        } else if (tableType == 'Kids_cafe') {
-          currentData = KidsCafe.fromJson(data);
-        }
-        print(currentData);
-        sortedListData.add(currentData);
-      }
-      setState(() {
-        isLoading = false;
-      });
-    }
+    sortedListData  = await places.getList(tableType, latitude, longitude, pageNumber, userId);
     return sortedListData;
-  }
+   }
 
   @override
   void dispose() {

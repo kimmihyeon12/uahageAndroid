@@ -1,6 +1,7 @@
 class BottomButton {
   BottomButton(
-      {this.storeName,
+      { this.id1,
+        this.storeName,
         this.address1,
         this.phone1,
         this.menu1,
@@ -15,6 +16,7 @@ class BottomButton {
         this.Examination_item1,
         this.fare1,
       this.bookmark1});
+  String id1;
   String storeName;
   String address1;
   String phone1;
@@ -31,6 +33,8 @@ class BottomButton {
   String fare1;
   String bookmark1;
 
+
+  String get id => id1;
   String get store_name => storeName;
   String get address => address1;
   String get phone => phone1;
@@ -46,20 +50,5 @@ class BottomButton {
   String get Examination_item => Examination_item1;
   String get fare => fare1;
   String get bookmark => bookmark1;
-// Map<String, dynamic> toMap() {
-//   return {
-//     "store_name": store_name,
-//     "address": address,
-//     "phone": phone,
-//     "menu": menu,
-//     "bed": bed,
-//     "tableware": tableware,
-//     "meetingroom": meetingroom,
-//     "diapers": diapers,
-//     "playroom": playroom,
-//     "carriage": carriage,
-//     "nursingroom": nursingroom,
-//     "chair": chair
-//   };
-// }
+
 }

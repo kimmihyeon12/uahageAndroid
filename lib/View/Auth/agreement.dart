@@ -33,8 +33,6 @@ class _agreementPageState extends State<agreementPage> {
 
   _initKakaoTalkInstalled() async {
     final installed = await isKakaoTalkInstalled();
-    print('kakao Install : ' + installed.toString());
-
     setState(() {
       _isKakaoTalkInstalled = installed;
     });

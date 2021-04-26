@@ -1,10 +1,10 @@
-import 'dart:convert';
+
 import 'dart:io';
 import 'package:flutter/material.dart';
 
 import 'package:flutter_spinkit/flutter_spinkit.dart';
 import 'package:provider/provider.dart';
-import 'package:uahage/Model/bottom_helper.dart';
+
 import 'package:uahage/Provider/locationProvider.dart';
 
 import 'package:webview_flutter/webview_flutter.dart';
@@ -14,11 +14,10 @@ import 'package:uahage/Widget/toast.dart';
 import 'package:uahage/Widget/icon.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:uahage/Widget/indexMap.dart';
- 
-import 'package:http/http.dart' as http;
+
 import 'package:uahage/Widget/showPopupMenu.dart';
 import 'package:flutter_config/flutter_config.dart';
-
+import 'package:uahage/API/bookMark.dart';
 class searchPage extends StatefulWidget {
   searchPage(
       {Key key,
@@ -64,11 +63,7 @@ class _searchPageState extends State<searchPage> {
         url+"/maps/show-place?lat=$latitude&lon=$longitude&type=filter&menu=${grey_image[0]}&bed=${grey_image[1]}&tableware=${grey_image[2]}&meetingroom=${grey_image[3]}&diapers=${grey_image[4]}&playroom=${grey_image[5]}&carriage=${grey_image[6]}&nursingroom=${grey_image[7]}&chair=${grey_image[8]}");
   }
 
-  bookmarkSelect(place_id) async {
-    var response = await http.get(
-        url+"/api/bookmarks?user_id=59&place_id=$place_id" );
-    return json.decode(response.body)["data"]["rowCount"];
-  }
+
 
   // WebViewController _controller;
   WebViewController controller;
@@ -143,7 +138,7 @@ class _searchPageState extends State<searchPage> {
                       onMessageReceived: (JavascriptMessage message) async {
                         var messages = message.message;
                         Message = messages.split("|");
-                        var bookmark = await bookmarkSelect(Message[0]);
+                        var bookmark = await bookMark.bookmarkSelect(userId,Message[0]);
                         var JsonMessage = {
                           "id": Message[0],
                           "name":  Message[1],
