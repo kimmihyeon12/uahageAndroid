@@ -10,6 +10,8 @@ import 'package:uahage/Widget/appBar.dart';
 import 'package:uahage/Widget/starManager.dart';
 import 'package:uahage/Widget/toast.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
+import 'dart:convert';
+import 'package:http/http.dart' as http;
 
 class SubListPage extends StatefulWidget {
   final index;
@@ -32,40 +34,31 @@ class SubListPage extends StatefulWidget {
 class _SubListPageState extends State<SubListPage> {
   WebViewController controller;
 
-  var userId = "", loginOption = "";
-  var data, storename, address;
-  var star_color = false;
+  var userId = "";
+  var loginOption = "";
+  var data;
+  var bookmark;
+  //var data, storename, address;
   var tableType = "";
-
+  var place_id;
   toast show_toast = new toast();
   StarManage starInsertDelete = new StarManage();
-  Future click_star() async {
-    await starInsertDelete.click_star(
-        userId + loginOption,
-        data.store_name,
-        data.address,
-        data.phone,
-        data.menu,
-        data.carriage,
-        data.bed,
-        data.tableware,
-        data.nursingroom,
-        data.meetingroom,
-        data.diapers,
-        data.playroom,
-        data.chair,
-        null,
-        null,
-        star_color,
-        "restaurant");
+
+  bookmarkCreate() async {
+    print('bookcreate');
+    var data = {"user_id": userId, "place_id": place_id};
+    var response = await http.post(
+      "http://112.187.123.29:8000/api/bookmarks",
+      headers: <String, String>{
+        'Content-Type': 'application/json; charset=UTF-8',
+      },
+      body: jsonEncode(data),
+    );
   }
 
-  Future getSubStarColor() async {
-    star_color =
-        await starInsertDelete.getSubStarColor(userId, loginOption, storename);
-    setState(() {
-      star_color = star_color;
-    });
+  bookmarkDelete() async {
+    var response = await http.delete(
+        "http://112.187.123.29:8000/api/bookmarks?user_id=$userId&place_id=$place_id");
   }
 
   ScrollController _scrollController = ScrollController();
@@ -73,13 +66,13 @@ class _SubListPageState extends State<SubListPage> {
   @override
   void initState() {
     data = widget.data;
-    storename = data.store_name;
-    address = data.address;
+    //  storename = data.store_name;
+    //  address = data.address;
     userId = widget.userId;
     loginOption = widget.loginOption;
     tableType = widget.tableType;
 
-    _scrollController.addListener(() {
+    /* _scrollController.addListener(() {
       double maxScroll = _scrollController.position.maxScrollExtent;
       double currentScroll = _scrollController.position.pixels;
 
@@ -90,8 +83,8 @@ class _SubListPageState extends State<SubListPage> {
         });
       }
     });
-    getSubStarColor();
 
+*/
     super.initState();
   }
 
@@ -166,7 +159,7 @@ class _SubListPageState extends State<SubListPage> {
     ScreenUtil.init(context, width: 1500, height: 2667);
     return WillPopScope(
       onWillPop: () {
-        Navigator.pop(context, star_color);
+        Navigator.pop(context, bookmark);
         return;
       },
       child: SafeArea(
@@ -185,7 +178,7 @@ class _SubListPageState extends State<SubListPage> {
                 }
               }()),
               context,
-              star_color),
+              bookmark),
           body: ListView(
             //  controller: _scrollController,
             physics: enabled ? NeverScrollableScrollPhysics() : ScrollPhysics(),
@@ -235,7 +228,7 @@ class _SubListPageState extends State<SubListPage> {
                         children: [
                           Container(
                             width: 1250.w,
-                            child: Text("${data.store_name}",
+                            child: Text("${data.name}",
                                 style: TextStyle(
                                     color: Colors.black,
                                     fontFamily: "NotoSansCJKkr_Bold",
@@ -252,9 +245,9 @@ class _SubListPageState extends State<SubListPage> {
                             constraints: BoxConstraints(
                                 maxWidth: 170.w, maxHeight: 170.h),
                             icon: Image.asset(
-                                star_color
-                                    ? "./assets/listPage/star_color.png"
-                                    : "./assets/listPage/star_grey.png",
+                                bookmark == 0
+                                    ? "./assets/listPage/star_grey.png"
+                                    : "./assets/listPage/star_color.png",
                                 height: 60.h),
                             onPressed: loginOption == "login"
                                 ? () {
@@ -270,9 +263,15 @@ class _SubListPageState extends State<SubListPage> {
                                   }
                                 : () async {
                                     setState(() {
-                                      star_color = !star_color;
+                                      bookmark = 1;
                                     });
-                                    await click_star();
+                                    if (bookmark == 0) {
+                                      bookmarkCreate();
+                                      bookmark = 1;
+                                    } else {
+                                      bookmarkDelete();
+                                      bookmark = 0;
+                                    }
                                   },
                           ),
                         ],
@@ -643,8 +642,8 @@ class _SubListPageState extends State<SubListPage> {
                   // gestureNavigationEnabled: true,
                   onWebViewCreated: (WebViewController webViewController) {
                     controller = webViewController;
-                    controller.loadUrl(
-                        'http://211.223.46.144:3000/map/storename?storename=$storename&address=$address');
+                    controller
+                        .loadUrl('http://112.187.123.29:8000/maps?lat=$lat');
                   },
                   javascriptMode: JavascriptMode.unrestricted,
                 ),

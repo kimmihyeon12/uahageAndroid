@@ -87,50 +87,55 @@ class _registrationPageState extends State<registrationPage> {
 
   Future saveToDatabase(String type) async {
     SharedPreferences sharedPreferences = await SharedPreferences.getInstance();
+
     Map<String, dynamic> ss = type == "withNickname"
         ? {
             "email": userId + loginOption,
             "nickname": nickName,
             "gender": gender,
-            "birthday": "20",
+            "birthday": birthday,
             "age": userAge,
             "URL": "",
             "rf_token": ""
           }
         : {
             "email": userId + loginOption,
-            "nickname": "",
+            "nickname": null,
             "gender": "",
             "birthday": "",
-            "age": "",
+            "age": 0,
             "URL": "",
             "rf_token": ""
           };
     print(ss);
-    var response = await http.post(
-      "http://121.147.203.126:8000/api/auth/signup",
-      headers: <String, String>{
-        'Content-Type': 'application/json; charset=UTF-8',
-      },
-      body: jsonEncode(ss),
-    );
-    if (response.statusCode == 200) {
-      setState(() {
-        saveError = false;
-      });
-      var data = jsonDecode(response.body);
-      String token = data['data']['token'];
-      String id = data['data']['id'].toString();
-      print("token $token");
-      await sharedPreferences.setString("uahageUserToken", token);
-      await sharedPreferences.setString("uahageUserId", id);
+    try {
+      var response = await http.post(
+        "http://121.147.203.126:8000/api/auth/signup",
+        headers: <String, String>{
+          'Content-Type': 'application/json; charset=UTF-8',
+        },
+        body: jsonEncode(ss),
+      );
+      if (response.statusCode == 200) {
+        setState(() {
+          saveError = false;
+        });
+        var data = jsonDecode(response.body);
+        String token = data['data']['token'];
+        String id = data['data']['id'].toString();
+        print("token $token");
+        await sharedPreferences.setString("uahageUserToken", token);
+        await sharedPreferences.setString("uahageUserId", id);
 
-      return data["message"];
-    } else {
-      setState(() {
-        saveError = true;
-      });
-      return Future.error(jsonDecode(response.body)["message"]);
+        return data["message"];
+      } else {
+        setState(() {
+          saveError = true;
+        });
+        return Future.error(jsonDecode(response.body)["message"]);
+      }
+    } catch (error) {
+      return Future.error(error);
     }
   }
 

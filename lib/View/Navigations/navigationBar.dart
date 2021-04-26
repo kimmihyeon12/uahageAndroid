@@ -70,6 +70,7 @@ class _navigationPageState extends State<navigationPage> {
     longitude = lacationprovider.getlongitude;
     print("latitude in nav provider: $latitude");
     print("longitude in nav provider: $longitude");
+    print("userID in nav provider: $userId");
 
     ScreenUtil.init(context, width: 1500, height: 2667);
     SystemChrome.setPreferredOrientations([

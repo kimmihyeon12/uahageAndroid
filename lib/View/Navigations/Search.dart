@@ -80,15 +80,15 @@ class _searchPageState extends State<searchPage> {
       "lat": "$latitude",
       "lon": "$longitude",
       "type": "filter",
-      "menu": "1",
-      "bed": "0",
-      "tableware": "0",
-      "meetingroom": "0",
-      "diapers": "0",
-      "playroom": "0",
-      "carriage": "0",
-      "nursingroom": "0",
-      "chair": "0"
+      "menu": grey_image[0] ? "0" : "1",
+      "bed": grey_image[1] ? "0" : "1",
+      "tableware": grey_image[2] ? "0" : "1",
+      "meetingroom": grey_image[3] ? "0" : "1",
+      "diapers": grey_image[4] ? "0" : "1",
+      "playroom": grey_image[5] ? "0" : "1",
+      "carriage": grey_image[6] ? "0" : "1",
+      "nursingroom": grey_image[7] ? "0" : "1",
+      "chair": grey_image[8] ? "0" : "1"
     };
     var headers = {
       HttpHeaders.contentTypeHeader: 'application/json',
@@ -176,7 +176,7 @@ class _searchPageState extends State<searchPage> {
 
   @override
   Widget build(BuildContext context) {
-    print("WB" + latitude + "  " + longitude);
+    print("WB" + userId);
     if (latitude == "" || longitude == "") currentLocation();
     // setState(() {
     //   latitude = widget.latitude;

@@ -164,6 +164,7 @@ class _myPageState extends State<myPage> {
         }
       }
     } catch (err) {
+      return Future.error(err);
       //print(err);
       //return data["nickname"];
     }
@@ -469,7 +470,8 @@ class _myPageState extends State<myPage> {
                               builder: (context, snapshot) {
                                 if (snapshot.hasData) {
                                   // //print("hasdata " + snapshot.data);
-                                  return snapshot.data != ""
+                                  return snapshot.data != "" &&
+                                          snapshot.data != "null"
                                       ? nickNameShow(snapshot.data, 1500.w)
                                       : nickNameShow("우아하게", 1500.w);
                                 } else if (snapshot.hasError) {
