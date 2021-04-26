@@ -11,6 +11,7 @@ import 'package:flutter_naver_login/flutter_naver_login.dart';
 import 'package:http/http.dart' as http;
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:uahage/Widget//appBar.dart';import 'package:flutter_config/flutter_config.dart';
+import 'package:uahage/API/auth.dart';
 
 class agreementPage extends StatefulWidget {
   agreementPage({Key key, this.loginOption}) : super(key: key);
@@ -39,53 +40,17 @@ class _agreementPageState extends State<agreementPage> {
     });
   }
 
-//회원가입 되있는지 check
-  Future checkEmail() async {
-    var response = await http.get(
-        url+"/api/users/find-by-option?option=email&optionData='${Email}${loginOption}'"
-         );
-    return jsonDecode(response.body)["isdata"] == 0 ? true : false ;
 
-   }
-
-  Future signIn() async {
-
-    SharedPreferences sharedPreferences = await SharedPreferences.getInstance();
-
-    Map<String, dynamic> userData  = {
-      "email": "'$Email$loginOption'",
-    };
-    var response = await http.post(
-      url+"/api/auth/signin",
-      headers: <String, String>{
-        'Content-Type': 'application/json; charset=UTF-8',
-      },
-      body: jsonEncode(userData),
-    );
-    if (response.statusCode == 200) {
-      var data = jsonDecode(response.body);
-
-      String token = data['data']['token'];
-      setState(() {
-        userId = data['data']['id'].toString();
-      });
-      //save user info
-      await sharedPreferences.setString("uahageUserToken", token);
-      await sharedPreferences.setString("uahageUserId", userId);
-      return data["message"];
-    }
-
-  }
 
   _issueAccessToken(String authCode) async {
     try {
       var token = await AuthApi.instance.issueAccessToken(authCode);
       AccessTokenStore.instance.toStore(token);
       await kakaoGetEmail();
-      isAlreadyRegistered = await checkEmail();
+      isAlreadyRegistered = await auth.checkEmail(Email,loginOption);
 
       if (!isAlreadyRegistered) {
-       await signIn();
+       userId = await auth.signIn(Email,loginOption);
          Navigator.pushReplacement(
             context,
             MaterialPageRoute(
@@ -152,7 +117,7 @@ class _agreementPageState extends State<agreementPage> {
         Email = resAccount.email;
       });
 
-      isAlreadyRegistered = await checkEmail();
+      isAlreadyRegistered = await auth.checkEmail(Email, loginOption);
       // create database
       if (isAlreadyRegistered) {
 

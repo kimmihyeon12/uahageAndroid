@@ -7,12 +7,12 @@ import 'package:clipboard/clipboard.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:uahage/Widget/appBar.dart';
-import 'package:uahage/Widget/starManager.dart';
 import 'package:uahage/Widget/toast.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'dart:convert';
 import 'package:http/http.dart' as http;
 import 'package:flutter_config/flutter_config.dart';
+import 'package:uahage/API/bookMark.dart';
 
 class SubListPage extends StatefulWidget {
   final index;
@@ -44,23 +44,8 @@ class _SubListPageState extends State<SubListPage> {
   var tableType = "";
   int place_id;
   toast show_toast = new toast();
-  StarManage starInsertDelete = new StarManage();
 
-  bookmarkCreate() async {
-   var data = {"user_id": 59, "place_id": place_id};
-    var response = await http.post(
-     url+"/api/bookmarks",
-      headers: <String, String>{
-        'Content-Type': 'application/json; charset=UTF-8',
-      },
-      body: jsonEncode(data),
-    );
-  }
 
-  bookmarkDelete() async {
-    var response = await http.delete(
-       url+"/api/bookmarks?user_id=59&place_id=$place_id");
-  }
 
 
   ScrollController _scrollController = ScrollController();
@@ -256,13 +241,13 @@ class _SubListPageState extends State<SubListPage> {
                                    place_id = data.id;
                                  });
                                     if ( bookmark == 0) {
-                                      bookmarkCreate();
+                                      bookMark.bookmarkCreate(userId,place_id);
                                       setState(() {
                                         bookmark = 1;
                                       });
 
                                     } else {
-                                      bookmarkDelete();
+                                      bookMark.bookmarkDelete(userId,place_id);
                                       setState(() {
                                         bookmark = 0;
                                       });

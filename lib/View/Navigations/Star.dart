@@ -6,7 +6,6 @@ import 'dart:convert';
 import 'dart:async';
 import 'package:flutter_spinkit/flutter_spinkit.dart';
 import 'package:page_transition/page_transition.dart';
-import 'package:uahage/Widget/starManager.dart';
 import 'package:uahage/View/Navigations/HomeSub/listSub.dart ';
 import 'package:uahage/Widget/appBar.dart';
 import 'package:uahage/Widget/icon.dart';
@@ -57,28 +56,6 @@ class _starPageState extends State<starPage> {
   }
 
   final GlobalKey<AnimatedListState> listKey = GlobalKey<AnimatedListState>();
-  StarManage starInsertDelete = new StarManage();
-  click_star(address1) async {
-    var response = await starInsertDelete.click_star(
-        userId + loginOption,
-        null,
-        address1,
-        null,
-        null,
-        null,
-        null,
-        null,
-        null,
-        null,
-        null,
-        null,
-        null,
-        null,
-        null,
-        false,
-        null);
-    if (jsonDecode(response)["affectedRows"] == 1) setState(() {});
-  }
 
   bool isIOS = Platform.isIOS;
   bool isIphoneX = Device.get().isIphoneX;
@@ -183,7 +160,7 @@ class _starPageState extends State<starPage> {
                                     ),
                                     onDismissed: (direction) async {
                                       var data = snapshot.data[index];
-                                      await click_star(data.address);
+                                 //     await click_star(data.address);
                                       // setState(() {
                                       snapshot.data.removeAt(index);
                                       // });
@@ -386,9 +363,9 @@ class _starPageState extends State<starPage> {
                                                   onPressed: () async {
                                                     var data =
                                                         snapshot.data[index];
-                                                    await click_star(
-                                                      data.address,
-                                                    );
+                                                    // await click_star(
+                                                    //   data.address,
+                                                    // );
                                                     //setState(() {
                                                     snapshot.data
                                                         .removeAt(index);
