@@ -9,7 +9,7 @@ import 'package:flutter/services.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:uahage/Widget/toast.dart';
 import 'package:uahage/Widget/showDialog.dart';
-
+import 'package:flutter_config/flutter_config.dart';
 class UserModify extends StatefulWidget {
   final loginOption;
   final userId;
@@ -30,7 +30,7 @@ class UserModify extends StatefulWidget {
 
 class _UserModifyState extends State<UserModify> {
   TextEditingController yController = TextEditingController();
-
+  String url;
   String birthday = "";
   String nickName = "";
   String oldNickname = "";
@@ -53,6 +53,8 @@ class _UserModifyState extends State<UserModify> {
   @override
   void initState() {
     super.initState();
+    url = FlutterConfig.get('API_URL');
+    print(url);
     loginOption = widget.loginOption;
     userId = widget.userId ?? "";
     recievedImage = widget.recievedImage ?? null;
@@ -66,7 +68,7 @@ class _UserModifyState extends State<UserModify> {
   Future checkNickName() async {
     try {
       var response = await http.get(
-        "http://112.187.123.29:8000/api/users/find-by-option?option=nickname&optionData='${nickName}'",
+        url+"/api/users/find-by-option?option=nickname&optionData='${nickName}'",
       );
       print("isdata nickname"+jsonDecode(response.body)["isdata"].toString());
       if (jsonDecode(response.body)["isdata"]==0) {
@@ -141,7 +143,7 @@ class _UserModifyState extends State<UserModify> {
   Future deleteFile() async {
   try {
       await http.post(
-        "http://112.187.123.29:8000/api/s3/images-delete",
+        url+"/api/s3/images-delete",
         headers: <String, String>{
           'Content-Type': 'application/json; charset=UTF-8',
           "Authorization": token
@@ -181,7 +183,7 @@ class _UserModifyState extends State<UserModify> {
     if (imageLink != "") {
       try {
         await http.post(
-          "http://112.187.123.29:8000/api/s3/images-delete",
+          url+"/api/s3/images-delete",
           headers: <String, String>{
             'Content-Type': 'application/json; charset=UTF-8',
             "Authorization": token
@@ -203,7 +205,7 @@ class _UserModifyState extends State<UserModify> {
       var response;
       try {
         response = await dio.post(
-            'http://112.187.123.29:8000/api/s3/images/$id',
+            url+'/api/s3/images/$id',
             data: formData);
         setState(() {
           _uploadedFileURL = response.data["location"];
@@ -222,7 +224,7 @@ class _UserModifyState extends State<UserModify> {
   _saveURL(_uploadedFileURL) async {
     try {
       await http.patch(
-        "http://112.187.123.29:8000/api/users/$id",
+        url+"/api/users/$id",
         headers: <String, String>{
           'Content-Type': 'application/json; charset=UTF-8',
           "Authorization": token
@@ -243,7 +245,7 @@ class _UserModifyState extends State<UserModify> {
       };
       print(userData);
       var response = await http.put(
-        "http://112.187.123.29:8000/api/users/$id",
+        url+"/api/users/$id",
         headers: <String, String>{
           'Content-Type': 'application/json; charset=UTF-8',
           "Authorization": token

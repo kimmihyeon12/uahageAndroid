@@ -15,7 +15,7 @@ import 'package:uahage/Model/Kids_cafe_helper.dart';
 import 'package:uahage/Model/experience_center_helper.dart';
 import 'package:uahage/Model/examination_institution_helper.dart';
 import 'package:uahage/View/Navigations/HomeSub/listSub.dart';
-
+import 'package:flutter_config/flutter_config.dart';
 class ListPage extends StatefulWidget {
   String loginOption;
   String userId;
@@ -98,8 +98,10 @@ class _ListPageState extends State<ListPage> {
   bool isLoading;
   var place_id;
   var place_code;
+  String url;
   @override
   void initState() {
+    url = FlutterConfig.get('API_URL');
     sortedListData = [];
     loginOption = widget.loginOption;
     userId = widget.userId ?? "";
@@ -123,10 +125,9 @@ class _ListPageState extends State<ListPage> {
   }
 
   bookmarkCreate() async {
-    print('bookcreate');
     var data = {"user_id": 59, "place_id": place_id};
     var response = await http.post(
-      "http://112.187.123.29:8000/api/bookmarks",
+     url+"/api/bookmarks",
       headers: <String, String>{
         'Content-Type': 'application/json; charset=UTF-8',
       },
@@ -136,7 +137,7 @@ class _ListPageState extends State<ListPage> {
 
   bookmarkDelete() async {
     var response = await http.delete(
-        "http://112.187.123.29:8000/api/bookmarks?user_id=59&place_id=$place_id");
+       url+"/api/bookmarks?user_id=59&place_id=$place_id");
   }
 
   Future<List<dynamic>> _getDataList() async {
@@ -151,7 +152,7 @@ class _ListPageState extends State<ListPage> {
     }
 
     final response = await http.get(
-        'http://112.187.123.29:8000/api/places?place_code=$place_code&lat=$latitude&lon=$longitude&pageNumber=$pageNumber&user_id=59');
+        url+'/api/places?place_code=$place_code&lat=$latitude&lon=$longitude&pageNumber=$pageNumber&user_id=59');
     List responseJson = json.decode(response.body)["data"]["rows"];
     if (json.decode(response.body)["message"] == false) {
     } else {

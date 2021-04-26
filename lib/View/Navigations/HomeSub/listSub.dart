@@ -13,9 +13,14 @@ import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'dart:convert';
 import 'package:http/http.dart' as http;
 <<<<<<< HEAD
+<<<<<<< HEAD
 
 =======
 >>>>>>> 9532aaed86128037138a8249efd8856c3009d9f9
+=======
+import 'package:flutter_config/flutter_config.dart';
+
+>>>>>>> 6ab8eb477ee037d9e4e0cbe317f4bcce4f7b698e
 class SubListPage extends StatefulWidget {
   final index;
   final data;
@@ -38,7 +43,7 @@ class SubListPage extends StatefulWidget {
 
 class _SubListPageState extends State<SubListPage> {
   WebViewController controller;
-
+  String url;
   var userId = "";
   var loginOption = "";
 <<<<<<< HEAD
@@ -64,7 +69,7 @@ class _SubListPageState extends State<SubListPage> {
    var data = {"user_id": 59, "place_id": place_id};
 >>>>>>> 9532aaed86128037138a8249efd8856c3009d9f9
     var response = await http.post(
-      "http://112.187.123.29:8000/api/bookmarks",
+     url+"/api/bookmarks",
       headers: <String, String>{
         'Content-Type': 'application/json; charset=UTF-8',
       },
@@ -75,10 +80,14 @@ class _SubListPageState extends State<SubListPage> {
   bookmarkDelete() async {
     var response = await http.delete(
 <<<<<<< HEAD
+<<<<<<< HEAD
         "http://112.187.123.29:8000/api/bookmarks?user_id=$userId&place_id=$place_id");
 =======
         "http://112.187.123.29:8000/api/bookmarks?user_id=59&place_id=$place_id");
 >>>>>>> 9532aaed86128037138a8249efd8856c3009d9f9
+=======
+       url+"/api/bookmarks?user_id=59&place_id=$place_id");
+>>>>>>> 6ab8eb477ee037d9e4e0cbe317f4bcce4f7b698e
   }
 
 
@@ -87,6 +96,7 @@ class _SubListPageState extends State<SubListPage> {
   @override
   void initState() {
     data = widget.data;
+<<<<<<< HEAD
 <<<<<<< HEAD
     //  storename = data.store_name;
     //  address = data.address;
@@ -108,6 +118,9 @@ class _SubListPageState extends State<SubListPage> {
 =======
   //  storename = data.store_name;
   //  address = data.address;
+=======
+    url = FlutterConfig.get('API_URL');
+>>>>>>> 6ab8eb477ee037d9e4e0cbe317f4bcce4f7b698e
     userId = widget.userId;
     loginOption = widget.loginOption;
     tableType = widget.tableType;

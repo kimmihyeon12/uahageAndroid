@@ -11,6 +11,7 @@ import 'package:shared_preferences/shared_preferences.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:uahage/Widget/appBar.dart';
 import 'package:uahage/Widget/showDialog.dart';
+import 'package:flutter_config/flutter_config.dart';
 
 class registrationPage extends StatefulWidget {
   String Email;
@@ -23,7 +24,7 @@ class registrationPage extends StatefulWidget {
 class _registrationPageState extends State<registrationPage> {
   //gender image , gender image color
   bool isIOS = Platform.isIOS;
-
+  String url;
   var boy = true;
   var girl = true;
   var boy_image = [
@@ -48,6 +49,7 @@ class _registrationPageState extends State<registrationPage> {
   void initState() {
     super.initState();
     setState(() {
+      url = FlutterConfig.get('API_URL');
       loginOption = widget.loginOption;
       Email = widget.Email;
     });
@@ -57,7 +59,7 @@ class _registrationPageState extends State<registrationPage> {
   Future checkNickName() async {
    try {
       var response = await http.get(
-        "http://112.187.123.29:8000/api/users/find-by-option?option=nickname&optionData='${nickName}'",
+        url+"/api/users/find-by-option?option=nickname&optionData='${nickName}'",
       );
      print("isdata nickname"+jsonDecode(response.body)["isdata"].toString());
       if (jsonDecode(response.body)["isdata"]==0) {
@@ -142,7 +144,7 @@ class _registrationPageState extends State<registrationPage> {
     };
      try {
       var response = await http.post(
-        "http://112.187.123.29:8000/api/auth/signup",
+        url+"/api/auth/signup",
         headers: <String, String>{
           'Content-Type': 'application/json; charset=UTF-8',
         },
@@ -157,6 +159,8 @@ class _registrationPageState extends State<registrationPage> {
         String token = data['data']['token'];
         setState(() {
           userId = data['data']['id'].toString();
+          print(token);
+          print(userId);
         });
         //save user info
         await sharedPreferences.setString("uahageUserToken", token);

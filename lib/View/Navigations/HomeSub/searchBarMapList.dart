@@ -15,7 +15,7 @@ import 'package:uahage/Widget/snackBar.dart';
 import 'package:uahage/Widget/showPopupMenu.dart';
 import 'dart:convert';
 import 'package:http/http.dart' as http;
-
+import 'package:flutter_config/flutter_config.dart';
 class Map_List_Toggle extends StatefulWidget {
   Map_List_Toggle(
       {Key key,
@@ -36,6 +36,7 @@ class Map_List_Toggle extends StatefulWidget {
 
 class _Map_List_ToggleState extends State<Map_List_Toggle> {
   @override
+  String url;
   String userId = "";
   String loginOption = "";
   int position;
@@ -52,6 +53,7 @@ class _Map_List_ToggleState extends State<Map_List_Toggle> {
 
   void initState() {
     super.initState();
+    url = FlutterConfig.get('API_URL');
     loginOption = widget.loginOption;
     userId = widget.userId ?? "";
   }
@@ -61,7 +63,7 @@ class _Map_List_ToggleState extends State<Map_List_Toggle> {
 
   bookmarkSelect(place_id) async {
     var response = await http.get(
-        "http://112.187.123.29:8000/api/bookmarks?user_id=59&place_id=$place_id" );
+        url+"/api/bookmarks?user_id=59&place_id=$place_id" );
     return json.decode(response.body)["data"]["rowCount"];
   }
 

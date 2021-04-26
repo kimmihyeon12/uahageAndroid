@@ -8,25 +8,26 @@ import 'package:uahage/Model/bottom_helper.dart';
 import 'package:uahage/Provider/locationProvider.dart';
 
 import 'package:webview_flutter/webview_flutter.dart';
-import 'package:page_transition/page_transition.dart';
+
 import 'package:uahage/Widget/toast.dart';
 
 import 'package:uahage/Widget/icon.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:uahage/Widget/indexMap.dart';
-import 'dart:convert';
+
 import 'package:http/http.dart' as http;
 import 'package:uahage/Widget/showPopupMenu.dart';
+import 'package:flutter_config/flutter_config.dart';
 
 class searchPage extends StatefulWidget {
   searchPage(
       {Key key,
-        this.latitude,
-        this.longitude,
-        this.userId,
-        this.loginOption,
-        this.Area,
-        this.Locality})
+      this.latitude,
+      this.longitude,
+      this.userId,
+      this.loginOption,
+      this.Area,
+      this.Locality})
       : super(key: key);
   String latitude;
   String longitude;
@@ -48,53 +49,23 @@ class _searchPageState extends State<searchPage> {
   String userId = "";
   String loginOption = "";
   int index = 1;
+  String url;
   var Message;
   LocationProvider lacationprovider;
 
   toast show_toast = new toast();
   List<String> star_color_list = List(2);
 
-<<<<<<< HEAD
-  Future searchCategory(latitude, longitude) async {
-    var url = 'http://121.147.203.126:8000/maps/show-place';
-    Map<String, String> queryParams = {
-      "lat": "$latitude",
-      "lon": "$longitude",
-      "type": "filter",
-      "menu": grey_image[0] ? "0" : "1",
-      "bed": grey_image[1] ? "0" : "1",
-      "tableware": grey_image[2] ? "0" : "1",
-      "meetingroom": grey_image[3] ? "0" : "1",
-      "diapers": grey_image[4] ? "0" : "1",
-      "playroom": grey_image[5] ? "0" : "1",
-      "carriage": grey_image[6] ? "0" : "1",
-      "nursingroom": grey_image[7] ? "0" : "1",
-      "chair": grey_image[8] ? "0" : "1"
-    };
-    var headers = {
-      HttpHeaders.contentTypeHeader: 'application/json',
-      HttpHeaders.contentEncodingHeader: "utf-8",
-      "Access-Control-Allow-Origin": "*",
-    };
-    String queryString = Uri(queryParameters: queryParams).query;
-    var requestUrl = url + '?' + queryString;
-    await controller.loadUrl(requestUrl, headers: headers);
-    // await controller.loadUrl(
-    //     "http://121.147.203.126:8000/maps/show-place?lat=35.1449589&lon=126.9216603&type=filter&menu=1&bed=0&tableware=0&meetingroom=0&diapers=0&playroom=0&carriage=0&nursingroom=0&chair=0");
-  }
-=======
   List<int> grey_image = [0, 0, 0, 0, 0, 0, 0, 0, 0];
->>>>>>> 9532aaed86128037138a8249efd8856c3009d9f9
-
 
   Future searchCategory() async {
-    controller.loadUrl(
-        "http://112.187.123.29:8000/maps/show-place?lat=$latitude&lon=$longitude&type=filter&menu=${grey_image[0]}&bed=${grey_image[1]}&tableware=${grey_image[2]}&meetingroom=${grey_image[3]}&diapers=${grey_image[4]}&playroom=${grey_image[5]}&carriage=${grey_image[6]}&nursingroom=${grey_image[7]}&chair=${grey_image[8]}");
+    controller.loadUrl(url +
+        "/maps/show-place?lat=$latitude&lon=$longitude&type=filter&menu=${grey_image[0]}&bed=${grey_image[1]}&tableware=${grey_image[2]}&meetingroom=${grey_image[3]}&diapers=${grey_image[4]}&playroom=${grey_image[5]}&carriage=${grey_image[6]}&nursingroom=${grey_image[7]}&chair=${grey_image[8]}");
   }
 
   bookmarkSelect(place_id) async {
-    var response = await http.get(
-        "http://112.187.123.29:8000/api/bookmarks?user_id=59&place_id=$place_id" );
+    var response =
+        await http.get(url + "/api/bookmarks?user_id=59&place_id=$place_id");
     return json.decode(response.body)["data"]["rowCount"];
   }
 
@@ -105,6 +76,7 @@ class _searchPageState extends State<searchPage> {
   @override
   void initState() {
     setState(() {
+      url = FlutterConfig.get('API_URL');
       longitude = widget.longitude ?? "";
       latitude = widget.latitude ?? "";
       loginOption = widget.loginOption ?? "";
@@ -155,15 +127,13 @@ class _searchPageState extends State<searchPage> {
                 key: key,
                 onPageFinished: doneLoading,
                 onPageStarted: startLoading,
-                // initialUrl: 'http://121.147.203.126:8000/map',
                 onWebViewCreated: (WebViewController webViewController) async {
                   controller = webViewController;
                   print(latitude + "  " + longitude);
-                  await controller.loadUrl(
-                      'http:///112.187.123.29:8000/maps?lat=$latitude&lon=$longitude');
+                  await controller
+                      .loadUrl(url + '/maps?lat=$latitude&lon=$longitude');
                   print(controller.currentUrl().toString());
                 },
-
                 javascriptMode: JavascriptMode.unrestricted,
                 javascriptChannels: Set.from([
                   JavascriptChannel(
@@ -174,23 +144,23 @@ class _searchPageState extends State<searchPage> {
                         var bookmark = await bookmarkSelect(Message[0]);
                         var JsonMessage = {
                           "id": Message[0],
-                          "name":  Message[1],
-                          "address":  Message[2],
-                          "phone":  Message[3],
-                          "lat":  Message[4],
-                          "lon":  Message[5],
-                          "carriage":  Message[6],
-                          "bed":  Message[7],
-                          "tableware":  Message[8],
-                          "nursingroom":  Message[9],
-                          "meetingroom":  Message[10],
-                          "diapers":  Message[11],
-                          "playroom":  Message[12],
-                          "chair":  Message[13],
-                          "menu":  Message[14],
-                          "bookmark":  bookmark.toString()
+                          "name": Message[1],
+                          "address": Message[2],
+                          "phone": Message[3],
+                          "lat": Message[4],
+                          "lon": Message[5],
+                          "carriage": Message[6],
+                          "bed": Message[7],
+                          "tableware": Message[8],
+                          "nursingroom": Message[9],
+                          "meetingroom": Message[10],
+                          "diapers": Message[11],
+                          "playroom": Message[12],
+                          "chair": Message[13],
+                          "menu": Message[14],
+                          "bookmark": bookmark.toString()
                         };
-                        await  showpopup.showPopUpbottomMenu(
+                        await showpopup.showPopUpbottomMenu(
                             context,
                             2667.h,
                             1501.w,
@@ -200,7 +170,6 @@ class _searchPageState extends State<searchPage> {
                             loginOption,
                             "search",
                             "restaurant");
-
                       })
                 ]),
               ),
@@ -210,7 +179,7 @@ class _searchPageState extends State<searchPage> {
           GestureDetector(
             onTap: () async {
               setState(() {
-                  grey_image = [0,0,0,0,0,0,0,0,0];
+                grey_image = [0, 0, 0, 0, 0, 0, 0, 0, 0];
               });
               List okButton = await showpopup.showPopUpMenu(
                   context, 2667.h, 1501.w, latitude, longitude, grey_image);
@@ -248,7 +217,7 @@ class _searchPageState extends State<searchPage> {
                     margin: EdgeInsets.only(left: 41.w),
                     width: 1200.w,
                     child: // 검색 조건을 설정해주세요
-                    Row(
+                        Row(
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       children: [
                         Text("검색 조건을 설정해주세요",

@@ -92,17 +92,7 @@ class _homePageState extends State<homePage> {
     appbar bar = new appbar();
 
     imageView(fileName) {
-      // return Image.network(
-      //   // 'http://hohoco.dothome.co.kr/img/$fileName.png',
-      //   "https://uahage.s3.ap-northeast-2.amazonaws.com/homepage/$fileName.png",
-      //   loadingBuilder: (context, child, loadingProgress) {
-      //     if (loadingProgress == null) return child;
-      //     return Center(
-      //       child: buildSpinKitThreeBounce(50, screenWidth),
-      //     );
-      //   },
-      //   fit: BoxFit.fill,
-      // );
+
       return CachedNetworkImage(
         imageUrl:
             "https://uahage.s3.ap-northeast-2.amazonaws.com/homepage/$fileName.png",
