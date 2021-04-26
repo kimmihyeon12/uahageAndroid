@@ -12,6 +12,8 @@ import 'package:uahage/Widget/toast.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'dart:convert';
 import 'package:http/http.dart' as http;
+import 'package:flutter_config/flutter_config.dart';
+
 class SubListPage extends StatefulWidget {
   final index;
   final data;
@@ -34,7 +36,7 @@ class SubListPage extends StatefulWidget {
 
 class _SubListPageState extends State<SubListPage> {
   WebViewController controller;
-
+  String url;
   var userId = "";
   var loginOption = "";
   var data ;
@@ -47,7 +49,7 @@ class _SubListPageState extends State<SubListPage> {
   bookmarkCreate() async {
    var data = {"user_id": 59, "place_id": place_id};
     var response = await http.post(
-      "http://112.187.123.29:8000/api/bookmarks",
+     url+"/api/bookmarks",
       headers: <String, String>{
         'Content-Type': 'application/json; charset=UTF-8',
       },
@@ -57,7 +59,7 @@ class _SubListPageState extends State<SubListPage> {
 
   bookmarkDelete() async {
     var response = await http.delete(
-        "http://112.187.123.29:8000/api/bookmarks?user_id=59&place_id=$place_id");
+       url+"/api/bookmarks?user_id=59&place_id=$place_id");
   }
 
 
@@ -66,8 +68,7 @@ class _SubListPageState extends State<SubListPage> {
   @override
   void initState() {
     data = widget.data;
-  //  storename = data.store_name;
-  //  address = data.address;
+    url = FlutterConfig.get('API_URL');
     userId = widget.userId;
     loginOption = widget.loginOption;
     tableType = widget.tableType;

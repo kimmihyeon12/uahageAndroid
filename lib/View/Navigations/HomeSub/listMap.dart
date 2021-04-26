@@ -12,7 +12,7 @@ import 'dart:convert';
 import 'dart:async';
 import 'package:http/http.dart' as http;
 
-
+import 'package:flutter_config/flutter_config.dart';
 
 class map_list extends StatefulWidget {
   map_list(
@@ -35,6 +35,7 @@ class map_list extends StatefulWidget {
 }
 
 class _map_listState extends State<map_list> {
+  String url;
   String loginOption;
   String userId;
   String latitude = "";
@@ -49,11 +50,11 @@ class _map_listState extends State<map_list> {
   var place_id;
   Future searchCategory() async {
     controller.loadUrl(
-        "http://112.187.123.29:8000/maps/show-place?lat=$latitude&lon=$longitude&type=filter&user_id=59&menu=${grey_image[0]}&bed=${grey_image[1]}&tableware=${grey_image[2]}&meetingroom=${grey_image[3]}&diapers=${grey_image[4]}&playroom=${grey_image[5]}&carriage=${grey_image[6]}&nursingroom=${grey_image[7]}&chair=${grey_image[8]}");
+       url+"/maps/show-place?lat=$latitude&lon=$longitude&type=filter&user_id=59&menu=${grey_image[0]}&bed=${grey_image[1]}&tableware=${grey_image[2]}&meetingroom=${grey_image[3]}&diapers=${grey_image[4]}&playroom=${grey_image[5]}&carriage=${grey_image[6]}&nursingroom=${grey_image[7]}&chair=${grey_image[8]}");
   }
   bookmarkSelect(place_id) async {
     var response = await http.get(
-        "http://112.187.123.29:8000/api/bookmarks?user_id=59&place_id=$place_id" );
+       url+"/api/bookmarks?user_id=59&place_id=$place_id" );
     return json.decode(response.body)["data"]["rowCount"];
   }
 
@@ -66,6 +67,7 @@ class _map_listState extends State<map_list> {
   @override
   void initState() {
     setState(() {
+      url = FlutterConfig.get('API_URL');
       list = widget.list;
       loginOption = widget.loginOption;
       userId = widget.userId ?? "";
@@ -125,7 +127,7 @@ class _map_listState extends State<map_list> {
                       latitude == '' ||
                       longitude == '') {} else {
                     controller.loadUrl(
-                        'http://112.187.123.29:8000/maps/show-place?lat=$latitude&lon=$longitude&type=allsearch&place_code=$place_code&user_id=59');
+                        url+'/maps/show-place?lat=$latitude&lon=$longitude&type=allsearch&place_code=$place_code&user_id=59');
                   }
                 },
                 javascriptMode: JavascriptMode.unrestricted,
