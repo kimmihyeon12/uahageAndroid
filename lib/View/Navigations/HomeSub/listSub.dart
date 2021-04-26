@@ -12,20 +12,25 @@ import 'package:uahage/Widget/toast.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'dart:convert';
 import 'package:http/http.dart' as http;
+<<<<<<< HEAD
 
+=======
+>>>>>>> 9532aaed86128037138a8249efd8856c3009d9f9
 class SubListPage extends StatefulWidget {
   final index;
   final data;
   final loginOption;
   final userId;
   final tableType;
+
   const SubListPage(
       {Key key,
       this.index,
       this.data,
       this.loginOption,
       this.userId,
-      this.tableType})
+      this.tableType,
+   })
       : super(key: key);
   @override
   _SubListPageState createState() => _SubListPageState();
@@ -36,17 +41,28 @@ class _SubListPageState extends State<SubListPage> {
 
   var userId = "";
   var loginOption = "";
+<<<<<<< HEAD
   var data;
   var bookmark;
   //var data, storename, address;
   var tableType = "";
   var place_id;
+=======
+  var data ;
+  var bookmark;
+  var tableType = "";
+  int place_id;
+>>>>>>> 9532aaed86128037138a8249efd8856c3009d9f9
   toast show_toast = new toast();
   StarManage starInsertDelete = new StarManage();
 
   bookmarkCreate() async {
+<<<<<<< HEAD
     print('bookcreate');
     var data = {"user_id": userId, "place_id": place_id};
+=======
+   var data = {"user_id": 59, "place_id": place_id};
+>>>>>>> 9532aaed86128037138a8249efd8856c3009d9f9
     var response = await http.post(
       "http://112.187.123.29:8000/api/bookmarks",
       headers: <String, String>{
@@ -58,14 +74,20 @@ class _SubListPageState extends State<SubListPage> {
 
   bookmarkDelete() async {
     var response = await http.delete(
+<<<<<<< HEAD
         "http://112.187.123.29:8000/api/bookmarks?user_id=$userId&place_id=$place_id");
+=======
+        "http://112.187.123.29:8000/api/bookmarks?user_id=59&place_id=$place_id");
+>>>>>>> 9532aaed86128037138a8249efd8856c3009d9f9
   }
+
 
   ScrollController _scrollController = ScrollController();
   var enabled = false;
   @override
   void initState() {
     data = widget.data;
+<<<<<<< HEAD
     //  storename = data.store_name;
     //  address = data.address;
     userId = widget.userId;
@@ -83,6 +105,14 @@ class _SubListPageState extends State<SubListPage> {
         });
       }
     });
+=======
+  //  storename = data.store_name;
+  //  address = data.address;
+    userId = widget.userId;
+    loginOption = widget.loginOption;
+    tableType = widget.tableType;
+    bookmark = data.bookmark;
+>>>>>>> 9532aaed86128037138a8249efd8856c3009d9f9
 
 */
     super.initState();
@@ -159,7 +189,11 @@ class _SubListPageState extends State<SubListPage> {
     ScreenUtil.init(context, width: 1500, height: 2667);
     return WillPopScope(
       onWillPop: () {
+<<<<<<< HEAD
         Navigator.pop(context, bookmark);
+=======
+        Navigator.pop(context, bookmark.toString());
+>>>>>>> 9532aaed86128037138a8249efd8856c3009d9f9
         return;
       },
       child: SafeArea(
@@ -178,7 +212,11 @@ class _SubListPageState extends State<SubListPage> {
                 }
               }()),
               context,
+<<<<<<< HEAD
               bookmark),
+=======
+              bookmark.toString()),
+>>>>>>> 9532aaed86128037138a8249efd8856c3009d9f9
           body: ListView(
             //  controller: _scrollController,
             physics: enabled ? NeverScrollableScrollPhysics() : ScrollPhysics(),
@@ -245,9 +283,16 @@ class _SubListPageState extends State<SubListPage> {
                             constraints: BoxConstraints(
                                 maxWidth: 170.w, maxHeight: 170.h),
                             icon: Image.asset(
+<<<<<<< HEAD
                                 bookmark == 0
                                     ? "./assets/listPage/star_grey.png"
                                     : "./assets/listPage/star_color.png",
+=======
+                                bookmark == 0?
+                                "./assets/listPage/star_grey.png" :
+                                     "./assets/listPage/star_color.png",
+
+>>>>>>> 9532aaed86128037138a8249efd8856c3009d9f9
                                 height: 60.h),
                             onPressed: loginOption == "login"
                                 ? () {
@@ -262,6 +307,7 @@ class _SubListPageState extends State<SubListPage> {
                                     );
                                   }
                                 : () async {
+<<<<<<< HEAD
                                     setState(() {
                                       bookmark = 1;
                                     });
@@ -271,6 +317,22 @@ class _SubListPageState extends State<SubListPage> {
                                     } else {
                                       bookmarkDelete();
                                       bookmark = 0;
+=======
+                                 setState(() {
+                                   place_id = data.id;
+                                 });
+                                    if ( bookmark == 0) {
+                                      bookmarkCreate();
+                                      setState(() {
+                                        bookmark = 1;
+                                      });
+
+                                    } else {
+                                      bookmarkDelete();
+                                      setState(() {
+                                        bookmark = 0;
+                                      });
+>>>>>>> 9532aaed86128037138a8249efd8856c3009d9f9
                                     }
                                   },
                           ),
@@ -636,18 +698,23 @@ class _SubListPageState extends State<SubListPage> {
                       ))
                 ],
               ),
-              Container(
+        /*      Container(
                 height: 1100.h,
                 child: WebView(
                   // gestureNavigationEnabled: true,
                   onWebViewCreated: (WebViewController webViewController) {
                     controller = webViewController;
+<<<<<<< HEAD
                     controller
                         .loadUrl('http://112.187.123.29:8000/maps?lat=$lat');
+=======
+                    controller.loadUrl(
+                        'http://211.223.46.144:3000/map/storename?storename=${data.storename}&address=$fsysaddress');
+>>>>>>> 9532aaed86128037138a8249efd8856c3009d9f9
                   },
                   javascriptMode: JavascriptMode.unrestricted,
                 ),
-              ),
+              ),*/
             ],
           ),
         ),

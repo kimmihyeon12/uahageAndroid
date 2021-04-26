@@ -97,6 +97,7 @@ class _ListPageState extends State<ListPage> {
   int pageNumber = 0;
   bool isLoading;
   var place_id;
+  var place_code;
   @override
   void initState() {
     sortedListData = [];
@@ -113,10 +114,7 @@ class _ListPageState extends State<ListPage> {
     _scrollController.addListener(() {
       double maxScroll = _scrollController.position.maxScrollExtent;
       double currentScroll = _scrollController.position.pixels;
-      double delta =
-          100.0; // or something else..maxScroll - currentScroll <= delta
       if (currentScroll == maxScroll && !isLoading) {
-        print("scrolling");
         pageNumber++;
         isLoading = true;
         _getDataList();
@@ -124,35 +122,9 @@ class _ListPageState extends State<ListPage> {
     });
   }
 
-  // Future click_star() async {
-  //   await starInsertDelete.click_star(
-  //       userId + loginOption,
-  //       store_name1,
-  //       address1,
-  //       phone1,
-  //       menu1,
-  //       bed1,
-  //       tableware1,
-  //       meetingroom1,
-  //       diapers1,
-  //       playroom1,
-  //       carriage1,
-  //       nursingroom1,
-  //       chair1,
-  //       null,
-  //       null,
-  //       star_color,
-  //       tableType);
-  // }
-
-  // Future get_star_color() async {
-  //   star_color_list =
-  //       await starInsertDelete.getStarColor(userId, loginOption, tableType);
-  //   setState(() {});
-  // }
   bookmarkCreate() async {
     print('bookcreate');
-    var data = {"user_id": userId, "place_id": place_id};
+    var data = {"user_id": 59, "place_id": place_id};
     var response = await http.post(
       "http://112.187.123.29:8000/api/bookmarks",
       headers: <String, String>{
@@ -164,29 +136,26 @@ class _ListPageState extends State<ListPage> {
 
   bookmarkDelete() async {
     var response = await http.delete(
-        "http://112.187.123.29:8000/api/bookmarks?user_id=$userId&place_id=$place_id");
+        "http://112.187.123.29:8000/api/bookmarks?user_id=59&place_id=$place_id");
   }
 
   Future<List<dynamic>> _getDataList() async {
-    var space_code;
     if (tableType == 'restaurant') {
-      space_code = 1;
+      place_code = 1;
     } else if (tableType == 'Examination_institution') {
-      space_code = 2;
+      place_code = 2;
     } else if (tableType == 'Experience_center') {
-      space_code = 6;
+      place_code = 6;
     } else if (tableType == 'Kids_cafe') {
-      space_code = 5;
+      place_code = 5;
     }
 
     final response = await http.get(
-        'http://112.187.123.29:8000/api/places?place_code=$space_code&lat=$latitude&lon=$longitude&pageNumber=$pageNumber&user_id=$userId');
+        'http://112.187.123.29:8000/api/places?place_code=$place_code&lat=$latitude&lon=$longitude&pageNumber=$pageNumber&user_id=59');
     List responseJson = json.decode(response.body)["data"]["rows"];
     if (json.decode(response.body)["message"] == false) {
     } else {
       var currentData;
-      var distance;
-      int i = 0;
       for (var data in responseJson) {
         print(data);
         if (tableType == 'restaurant') {
@@ -316,20 +285,20 @@ class _ListPageState extends State<ListPage> {
             ),
           ),
           body: IndexedStack(index: indexcount, children: <Widget>[
-            restaruant_view(context, 1501.w, 2667.h),
+            listView(context, 1501.w, 2667.h),
             map_list(
-                userId: userId,
-                loginOption: loginOption,
-                latitude: latitude,
-                longitude: longitude,
-                list: tableType,
-                Area: Area,
-                Locality: Locality),
+              userId: userId,
+              loginOption: loginOption,
+              latitude: latitude,
+              longitude: longitude,
+              list: tableType,
+              place_code: place_code,
+            ),
           ])),
     );
   }
 
-  Widget restaruant_view(context, screenWidth, screenHeight) {
+  Widget listView(context, screenWidth, screenHeight) {
     return FutureBuilder(
       future: myFuture,
       builder: (context, snapshot) {
@@ -361,7 +330,7 @@ class _ListPageState extends State<ListPage> {
                             InkWell(
                               highlightColor: Colors.white,
                               onTap: () async {
-                                bool result = await Navigator.push(
+                                var result = await Navigator.push(
                                     context,
                                     PageTransition(
                                       type: PageTransitionType.rightToLeft,
@@ -376,13 +345,9 @@ class _ListPageState extends State<ListPage> {
                                       reverseDuration:
                                           Duration(milliseconds: 100),
                                     ));
-
                                 setState(() {
-                                  if (result) {
-                                    sortedStarList[index] = true;
-                                  } else {
-                                    sortedStarList[index] = false;
-                                  }
+                                  snapshot.data[index].bookmark =
+                                      int.parse(result);
                                 });
                               },
                               child: Container(
@@ -560,12 +525,12 @@ class _ListPageState extends State<ListPage> {
                                   height: 60.h,
                                 ),
                                 onPressed:
-                                    /* loginOption == "login"
+                                    loginOption == "login"
                                     ? () {
                                         show_toast.showToast(
                                             context, "로그인해주세요!");
                                       }
-                                    : () */
+                                    :
                                     () async {
                                   setState(() {
                                     print(snapshot.data[index].id);

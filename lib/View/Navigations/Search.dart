@@ -1,31 +1,32 @@
 import 'dart:convert';
 import 'dart:io';
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
+
 import 'package:flutter_spinkit/flutter_spinkit.dart';
 import 'package:provider/provider.dart';
 import 'package:uahage/Model/bottom_helper.dart';
 import 'package:uahage/Provider/locationProvider.dart';
-import 'package:uahage/View/Navigations/HomeSub/listSub.dart';
+
 import 'package:webview_flutter/webview_flutter.dart';
 import 'package:page_transition/page_transition.dart';
 import 'package:uahage/Widget/toast.dart';
-import 'package:uahage/Widget/starManager.dart';
+
 import 'package:uahage/Widget/icon.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:uahage/Widget/indexMap.dart';
-
+import 'dart:convert';
+import 'package:http/http.dart' as http;
 import 'package:uahage/Widget/showPopupMenu.dart';
 
 class searchPage extends StatefulWidget {
   searchPage(
       {Key key,
-      this.latitude,
-      this.longitude,
-      this.userId,
-      this.loginOption,
-      this.Area,
-      this.Locality})
+        this.latitude,
+        this.longitude,
+        this.userId,
+        this.loginOption,
+        this.Area,
+        this.Locality})
       : super(key: key);
   String latitude;
   String longitude;
@@ -52,28 +53,8 @@ class _searchPageState extends State<searchPage> {
 
   toast show_toast = new toast();
   List<String> star_color_list = List(2);
-  List<bool> grey_image = [
-    true,
-    true,
-    true,
-    true,
-    true,
-    true,
-    true,
-    true,
-    true
-  ];
 
-  searchAddress(searchKey) async {
-    // ignore: unnecessary_statements
-    print(searchKey);
-    searchKey != ""
-        ? controller.loadUrl(
-            'http://121.147.203.126:8000/map/getAddress?address=$searchKey')
-        // ignore: unnecessary_statements
-        : null;
-  }
-
+<<<<<<< HEAD
   Future searchCategory(latitude, longitude) async {
     var url = 'http://121.147.203.126:8000/maps/show-place';
     Map<String, String> queryParams = {
@@ -101,42 +82,26 @@ class _searchPageState extends State<searchPage> {
     // await controller.loadUrl(
     //     "http://121.147.203.126:8000/maps/show-place?lat=35.1449589&lon=126.9216603&type=filter&menu=1&bed=0&tableware=0&meetingroom=0&diapers=0&playroom=0&carriage=0&nursingroom=0&chair=0");
   }
+=======
+  List<int> grey_image = [0, 0, 0, 0, 0, 0, 0, 0, 0];
+>>>>>>> 9532aaed86128037138a8249efd8856c3009d9f9
 
-  StarManage starInsertDelete = new StarManage();
 
-  Future click_star() async {
-    await starInsertDelete.click_star(
-        userId + loginOption,
-        Message[0],
-        Message[1],
-        Message[2],
-        Message[3],
-        Message[4],
-        Message[5],
-        Message[6],
-        Message[7],
-        Message[8],
-        Message[9],
-        Message[10],
-        Message[11],
-        null,
-        null,
-        star_color,
-        "restaurant");
+  Future searchCategory() async {
+    controller.loadUrl(
+        "http://112.187.123.29:8000/maps/show-place?lat=$latitude&lon=$longitude&type=filter&menu=${grey_image[0]}&bed=${grey_image[1]}&tableware=${grey_image[2]}&meetingroom=${grey_image[3]}&diapers=${grey_image[4]}&playroom=${grey_image[5]}&carriage=${grey_image[6]}&nursingroom=${grey_image[7]}&chair=${grey_image[8]}");
   }
 
-  Future getSubStarColor() async {
-    star_color =
-        await starInsertDelete.getSubStarColor(userId, loginOption, Message[0]);
-    setState(() {
-      star_color = star_color;
-    });
+  bookmarkSelect(place_id) async {
+    var response = await http.get(
+        "http://112.187.123.29:8000/api/bookmarks?user_id=59&place_id=$place_id" );
+    return json.decode(response.body)["data"]["rowCount"];
   }
 
   // WebViewController _controller;
   WebViewController controller;
   icon iconwidget = new icon();
-  showPopup showpopup = new showPopup();
+
   @override
   void initState() {
     setState(() {
@@ -173,16 +138,11 @@ class _searchPageState extends State<searchPage> {
 
   bool isIOS = Platform.isIOS;
   var isLoading = true;
-
+  showPopup showpopup = new showPopup();
   @override
   Widget build(BuildContext context) {
     print("WB" + userId);
     if (latitude == "" || longitude == "") currentLocation();
-    // setState(() {
-    //   latitude = widget.latitude;
-    //   longitude = widget.longitude;
-    //   position = 0;
-    // });
 
     ScreenUtil.init(context, width: 1500, height: 2667);
     return Scaffold(
@@ -200,7 +160,7 @@ class _searchPageState extends State<searchPage> {
                   controller = webViewController;
                   print(latitude + "  " + longitude);
                   await controller.loadUrl(
-                      'http:///121.147.203.126:8000/maps?lat=$latitude&lon=$longitude');
+                      'http:///112.187.123.29:8000/maps?lat=$latitude&lon=$longitude');
                   print(controller.currentUrl().toString());
                 },
 
@@ -211,20 +171,36 @@ class _searchPageState extends State<searchPage> {
                       onMessageReceived: (JavascriptMessage message) async {
                         var messages = message.message;
                         Message = messages.split("|");
-                        await getSubStarColor();
-                        print("star_color: $star_color");
-                        print("Message: $Message");
-                        showpopup.showPopUpbottomMenu(
+                        var bookmark = await bookmarkSelect(Message[0]);
+                        var JsonMessage = {
+                          "id": Message[0],
+                          "name":  Message[1],
+                          "address":  Message[2],
+                          "phone":  Message[3],
+                          "lat":  Message[4],
+                          "lon":  Message[5],
+                          "carriage":  Message[6],
+                          "bed":  Message[7],
+                          "tableware":  Message[8],
+                          "nursingroom":  Message[9],
+                          "meetingroom":  Message[10],
+                          "diapers":  Message[11],
+                          "playroom":  Message[12],
+                          "chair":  Message[13],
+                          "menu":  Message[14],
+                          "bookmark":  bookmark.toString()
+                        };
+                        await  showpopup.showPopUpbottomMenu(
                             context,
                             2667.h,
                             1501.w,
-                            Message,
+                            JsonMessage,
                             index,
                             userId,
                             loginOption,
-                            star_color,
                             "search",
                             "restaurant");
+
                       })
                 ]),
               ),
@@ -234,22 +210,13 @@ class _searchPageState extends State<searchPage> {
           GestureDetector(
             onTap: () async {
               setState(() {
-                grey_image = [
-                  true,
-                  true,
-                  true,
-                  true,
-                  true,
-                  true,
-                  true,
-                  true,
-                  true,
-                ];
+                  grey_image = [0,0,0,0,0,0,0,0,0];
               });
               List okButton = await showpopup.showPopUpMenu(
                   context, 2667.h, 1501.w, latitude, longitude, grey_image);
               if (okButton != null) {
-                await searchCategory(latitude, longitude);
+                grey_image = okButton;
+                await searchCategory();
               }
             },
             child: Container(
@@ -281,7 +248,7 @@ class _searchPageState extends State<searchPage> {
                     margin: EdgeInsets.only(left: 41.w),
                     width: 1200.w,
                     child: // 검색 조건을 설정해주세요
-                        Row(
+                    Row(
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       children: [
                         Text("검색 조건을 설정해주세요",

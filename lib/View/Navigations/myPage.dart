@@ -27,7 +27,7 @@ class _myPageState extends State<myPage> {
   TextEditingController yController = TextEditingController();
 
   String birthday = "";
-  String nickName = "";
+
   String oldNickname = "";
   String userId = "";
   String year, month, yearMonthDay, yearMonthDayTime;
@@ -36,305 +36,98 @@ class _myPageState extends State<myPage> {
   bool onEdit = false;
   bool isIdValid = false;
   String loginOption = "";
-  String gender = "";
-  String userAge = "";
-  String _uploadedFileURL = "";
   File _image;
-  String imageLink = "";
-  SharedPreferences sharedPreferences;
-  String token;
-  String id;
 
+  SharedPreferences sharedPreferences;
+
+  String id = "";
+  String nickName = "";
+  String gender = "";
+  String imageLink = "";
+  String userAge = "";
+
+  String token;
+  bool isloding = false;
   @override
   void initState() {
     super.initState();
     setState(() {
-      loginOption = widget.loginOption;
       userId = widget.userId ?? "";
-      // oldNickname = userId != "" ? getMyNickname().toString() : "";
     });
-    // //print("loginOption" + loginOption);
-    // //print("widgetID" + widget.userId);
+
     if (loginOption != "login") {
-      // getMyAvatar();
       getMyInfo();
     }
   }
 
   toast show_toast = new toast();
+
+  // SHOW USER
   getMyInfo() async {
     sharedPreferences = await SharedPreferences.getInstance();
     setState(() {
       token = sharedPreferences.getString("uahageUserToken");
       id = sharedPreferences.getString("uahageUserId");
+      print(token);
+      print(id);
     });
-
     try {
-      var response = await http.get("http://121.147.203.126:8000/api/users/$id",
+      var response = await http.get("http://112.187.123.29:8000/api/users/$id",
           headers: <String, String>{"Authorization": token});
-      var data = jsonDecode(response.body)['data']["result"][0];
-      //print("printing info " + data.toString());
-      // setting profile image
-      String _imageLink = data["profile_url"];
-      //print("_imageLink from myInfo $_imageLink");
-      if (_imageLink == null || _imageLink == "")
+
+      if (jsonDecode(response.body)['message'] == 'finded successfully') {
+        var data = jsonDecode(response.body)['data']["result"][0];
         setState(() {
-          imageLink = "";
-        });
-      else
-        setState(() {
-          imageLink = _imageLink.toString();
-        });
-      if (data["baby_gender"].toString() != "") {
-        if (data["baby_gender"].toString() == "M") {
-          setState(() {
-            genderImage[0] = true;
-            genderImage[1] = false;
-            birthday = data["baby_birthday"].toString();
-            yController.text = birthday;
-          });
-        } else {
-          setState(() {
+          isloding = true;
+          //setting id
+          id = data["id"].toString();
+
+          //setting nickname
+          nickName = data["nickname"];
+
+          // setting baby_birthday
+          birthday = data["baby_birthday"];
+          yController.text = birthday;
+
+          // setting baby_gender
+          if (data['baby_gender'].toString() == "F") {
             genderImage[0] = false;
             genderImage[1] = true;
-            birthday = data["baby_birthday"].toString();
-            yController.text = birthday;
-          });
-        }
+          } else if (data['baby_gender'].toString() == "M") {
+            genderImage[0] = true;
+            genderImage[1] = false;
+          }
 
-        _change(data["parent_age"].toString());
-      }
-    } catch (err) {
-      //print(err);
-      // return err["message"];
-    }
-  }
+          // setting age
+          _change(data["parent_age"].toString());
 
-  getMyAvatar() async {
-    try {
-      var response = await http.get(
-          "http://121.147.203.126:3000/getAvatar/?email=$userId$loginOption");
-      if (response.statusCode == 200) {
-        String _imageLink = jsonDecode(response.body)["image"].toString();
-        // //print("response" + jsonDecode(response.body)["image"]);
-        //print("imgaLink " + _imageLink);
-        if (_imageLink == null || _imageLink == "")
-          setState(() {
-            imageLink = "";
-          });
-        else
-          setState(() {
-            imageLink = _imageLink.toString();
-          });
-      }
-    } catch (err) {
-      //print(err);
-      return err;
-    }
-  }
-
-  Future deleteFile() async {
-    //print(imageLink);
-    try {
-      await http.post(
-        "http://121.147.203.126:8000/api/s3/images-delete",
-        headers: <String, String>{
-          'Content-Type': 'application/json; charset=UTF-8',
-          "Authorization": token
-        },
-        body: jsonEncode({"fileName": imageLink}),
-      );
-    } catch (err) {
-      //print(err);
-    }
-  }
-
-  Future getMyNickname() async {
-    var data;
-    try {
-      var response = await http.get("http://121.147.203.126:8000/api/users/$id",
-          headers: <String, String>{"Authorization": token});
-      // //print("widgetID" + userId);
-      if (response.statusCode == 200) {
-        data = json.decode(response.body)["data"]["result"][0];
-        if (data.length == 0) {
-          return "";
-        } else {
-          return data["nickname"].toString();
-        }
-      }
-    } catch (err) {
-      return Future.error(err);
-      //print(err);
-      //return data["nickname"];
-    }
-  }
-
-  Future _imgFromCamera() async {
-    var image = await ImagePicker()
-        .getImage(source: ImageSource.camera, imageQuality: 20);
-
-    setState(() {
-      _image = File(image.path);
-    });
-  }
-
-  Future _imgFromGallery() async {
-    var image = await ImagePicker()
-        .getImage(source: ImageSource.gallery, imageQuality: 20);
-
-    setState(() {
-      _image = File(image.path);
-    });
-    //print("from gallery $imageLink");
-  }
-
-  uploadFile(File file) async {
-    // delete image from s3 if exists
-    if (imageLink != "") {
-      try {
-        // //print(ss);
-        await http.post(
-          "http://121.147.203.126:8000/api/s3/images-delete",
-          headers: <String, String>{
-            'Content-Type': 'application/json; charset=UTF-8',
-            "Authorization": token
-          },
-          body: jsonEncode({"fileName": imageLink}),
-        );
-        //print("image is deleted");
-      } catch (err) {
-        //print(err);
-      }
-    }
-
-    try {
-      String fileName = file.path.split('/').last;
-      FormData formData = FormData.fromMap({
-        "profileImage":
-            await MultipartFile.fromFile(file.path, filename: fileName),
-      });
-      Dio dio = new Dio();
-      // dio.options.headers['content-Type'] = 'application/json';
-      // dio.options.headers["authorization"] = token;
-      var response;
-      try {
-        response = await dio.post(
-            'http://121.147.203.126:8000/api/s3/images/$id',
-            data: formData);
-        _uploadedFileURL =
-            response.data["location"]; // get responsed image link
-        setState(() {
-          imageLink = _uploadedFileURL;
+          // setting image
+          imageLink = data["profile_url"];
         });
-        //print("Printing after upload imagelink " + _uploadedFileURL);
-        await _saveURL(_uploadedFileURL);
-      } catch (err) {
-        //print(err);
       }
     } catch (err) {
-      //print(err);
+      print(err);
     }
   }
 
-  _saveURL(_uploadedFileURL) async {
-    try {
-      await http.patch(
-        "http://121.147.203.126:8000/api/users/$id",
-        headers: <String, String>{
-          'Content-Type': 'application/json; charset=UTF-8',
-          "Authorization": token
-        },
-        body: jsonEncode({"profile_url": _uploadedFileURL}),
-      );
-      //print("updated image url");
-    } catch (error) {
-      //print(error);
-    }
-  }
-
-  void _showPicker(context) {
-    showModalBottomSheet(
-        context: context,
-        builder: (BuildContext bc) {
-          return SafeArea(
-            child: Container(
-              child: new Wrap(
-                children: <Widget>[
-                  new ListTile(
-                      leading: new Icon(
-                        Icons.photo_library,
-                        color: Color.fromRGBO(255, 114, 148, 1.0),
-                      ),
-                      title: new Text('겔러리'),
-                      onTap: () async {
-                        await _imgFromGallery();
-                        await uploadFile(_image);
-
-                        Navigator.of(context).pop();
-                      }),
-                  new ListTile(
-                    leading: new Icon(
-                      Icons.photo_camera,
-                      color: Color.fromRGBO(255, 114, 148, 1.0),
-                    ),
-                    title: new Text('카메라'),
-                    onTap: () async {
-                      await _imgFromCamera();
-                      await uploadFile(_image);
-
-                      Navigator.of(context).pop();
-                    },
-                  ),
-                  new ListTile(
-                    leading: new Icon(
-                      Icons.delete_rounded,
-                      color: Color.fromRGBO(255, 114, 148, 1.0),
-                    ),
-                    title: new Text('삭제'),
-                    onTap: () async {
-                      await deleteFile();
-                      await _saveURL("");
-
-                      setState(() {
-                        _image = null;
-                        imageLink = "";
-                      });
-                      Navigator.of(context).pop();
-                    },
-                  ),
-                ],
-              ),
-            ),
-          );
-        });
-  }
-
+  // DELETE USER
   Future withdrawalUser() async {
-    // sharedPreferences = await SharedPreferences.getInstance();
-    // token = sharedPreferences.getString("uahageUserToken");
-    // String id = sharedPreferences.getString("uahageUserId");
-    //print("token: $token");
-    //print("id: $id");
+    //????????????????
     if (imageLink != "") {
       try {
-        // //print(ss);
         await http.post(
-          "http://121.147.203.126:3000/api/profile/deleteImage",
+          "http://112.187.123.29:3000/api/profile/deleteImage",
           headers: <String, String>{
             'Content-Type': 'application/json; charset=UTF-8',
           },
           body: jsonEncode({"fileName": imageLink}),
         );
-      } catch (err) {
-        //print(err);
-      }
+      } catch (err) {}
     }
 
     try {
-      var res = await http.delete("http://121.147.203.126:8000/api/users/$id",
+      var res = await http.delete("http://112.187.123.29:8000/api/users/$id",
           headers: <String, String>{"Authorization": token});
-      //print(jsonDecode(res.body));
       var data = jsonDecode(res.body);
       if (res.statusCode == 200) {
         return data["message"];
@@ -346,21 +139,11 @@ class _myPageState extends State<myPage> {
     }
   }
 
-  bool isIOS = Platform.isIOS;
   @override
   Widget build(BuildContext context) {
     ScreenUtil.init(context, width: 1500, height: 2667);
     FocusScopeNode currentFocus = FocusScope.of(context);
-    isIOS
-        ? SystemChrome.setSystemUIOverlayStyle(SystemUiOverlayStyle.dark
-            .copyWith(
-                statusBarBrightness:
-                    Brightness.dark // Dark == white status bar -- for IOS.
-                ))
-        : SystemChrome.setSystemUIOverlayStyle(SystemUiOverlayStyle(
-            systemNavigationBarColor: Color(0xffd9d4d5), // navigation bar color
-            statusBarColor: Color(0xffd9d4d5), // status bar color
-          ));
+
     var _fontsize = 52.5.sp;
     var textStyle52 = TextStyle(
       color: const Color(0xffb1b1b1),
@@ -393,18 +176,7 @@ class _myPageState extends State<myPage> {
                         child: (() {
                           // your code here
 
-                          if (_image != null) {
-                            //print("1");
-                            //print("here " + imageLink);
-                            return Container(
-                              decoration: BoxDecoration(
-                                shape: BoxShape.circle,
-                                image: DecorationImage(
-                                    image: FileImage(_image), //imageURL
-                                    fit: BoxFit.cover),
-                              ),
-                            );
-                          } else if (imageLink != "" && imageLink != null) {
+                          if (imageLink != "" && imageLink != null) {
                             //print("2 $imageLink");
                             return Container(
                               decoration: BoxDecoration(
@@ -415,7 +187,6 @@ class _myPageState extends State<myPage> {
                               ),
                             );
                           } else {
-                            //print("3");
                             return Container(
                               decoration: BoxDecoration(
                                 shape: BoxShape.circle,
@@ -436,13 +207,6 @@ class _myPageState extends State<myPage> {
                         // margin: EdgeInsets.fromLTRB(
                         //     330 .w, 341 .h, 0, 0),
                         child: InkWell(
-                          onTap: loginOption != "login"
-                              ? () {
-                                  _showPicker(context);
-                                }
-                              : () {
-                                  show_toast.showToast(context, "로그인해주세요!");
-                                },
                           child: Image.asset(
                             "./assets/myPage/camera.png",
                             height: 109.h,
@@ -461,40 +225,23 @@ class _myPageState extends State<myPage> {
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.center,
                   children: [
+                    (() {
+                      if (isloding) {
+                        Container(
+                            child: nickName == null
+                                ? nickNameShow("우아하게", 1500.w)
+                                : nickNameShow(nickName, 1500.w));
+                      } else {
+                        return Center(
+                          child: SizedBox(
+                            height: 50.h,
+                            width: 50.w,
+                            child: buildSpinKitThreeBounce(30, 1500.w),
+                          ),
+                        );
+                      }
+                    }()),
                     Container(
-                      // width: 320 .w,
-                      child: userId == ""
-                          ? nickNameShow("우아하게", 1500.w)
-                          : FutureBuilder(
-                              future: getMyNickname(),
-                              builder: (context, snapshot) {
-                                if (snapshot.hasData) {
-                                  // //print("hasdata " + snapshot.data);
-                                  return snapshot.data != "" &&
-                                          snapshot.data != "null"
-                                      ? nickNameShow(snapshot.data, 1500.w)
-                                      : nickNameShow("우아하게", 1500.w);
-                                } else if (snapshot.hasError) {
-                                  // //print("haserror " + snapshot.error);
-                                  return nickNameShow(
-                                      "${snapshot.error}", 1500.w);
-                                }
-                                return Center(
-                                  child: SizedBox(
-                                    height: 50.h,
-                                    width: 50.w,
-                                    child: buildSpinKitThreeBounce(30, 1500.w),
-                                  ),
-                                );
-                              },
-                            ),
-                    ),
-                    Container(
-                      // margin: EdgeInsets.fromLTRB(
-                      //     992 .w,
-                      //     0,
-                      //     148 .w,
-                      //     0),
                       child:
                           loginOption == "login" // Change this on release to ==
                               ? Image.asset(
@@ -520,14 +267,10 @@ class _myPageState extends State<myPage> {
                                                 token: token,
                                               )),
                                     );
-
-                                    // ignore: unnecessary_statements
                                     if (result) {
                                       setState(() {
                                         _image = null;
                                       });
-
-                                      getMyAvatar();
                                       getMyInfo();
                                     }
                                   },
@@ -644,7 +387,7 @@ class _myPageState extends State<myPage> {
                                     borderSide:
                                         BorderSide(color: Color(0xffff7292)),
                                   ),
-                                  hintText: birthday == ""
+                                  hintText: birthday == null
                                       ? '생년월일을 선택해주세요'
                                       : birthday,
                                   hintStyle: TextStyle(
@@ -899,11 +642,7 @@ class _myPageState extends State<myPage> {
                                               SharedPreferences prefs =
                                                   await SharedPreferences
                                                       .getInstance();
-                                              // await prefs
-                                              //     .remove("uahageUserEmail");
-                                              // await prefs
-                                              //     .remove("uahageLoginOption");
-                                              // await prefs.clear();
+                                              await prefs.clear();
 
                                               //delete data in the database
                                               showDialog(
@@ -912,7 +651,6 @@ class _myPageState extends State<myPage> {
                                                   future: withdrawalUser(),
                                                   builder: (context, snapshot) {
                                                     if (snapshot.hasData) {
-                                                      //print("hasdata");
                                                       WidgetsBinding.instance
                                                           .addPostFrameCallback(
                                                               (_) async {
@@ -951,13 +689,6 @@ class _myPageState extends State<myPage> {
                                                   },
                                                 ),
                                               );
-
-                                              // Navigator.pushReplacement(
-                                              //     context,
-                                              //     MaterialPageRoute(
-                                              //         builder: (context) => loginPage()));
-                                              // Navigator.of(context)
-                                              //     .popUntil((route) => route.isFirst);
                                             },
                                             child: // 네
                                                 Text("네",
@@ -1011,8 +742,6 @@ class _myPageState extends State<myPage> {
 
   Text nickNameShow(String txt, double screenHeight) {
     return Text(txt,
-        // maxLines: 3,
-        // overflow: TextOverflow.clip,
         style: TextStyle(
             color: const Color(0xff3a3939),
             fontFamily: "NotoSansCJKkr_Bold",
@@ -1072,7 +801,7 @@ class _myPageState extends State<myPage> {
         changeimage[4] = true;
         changeimage[5] = false;
       });
-    } else {
+    } else if (age == '60') {
       setState(() {
         userAge = ">60";
         changeimage[0] = false;

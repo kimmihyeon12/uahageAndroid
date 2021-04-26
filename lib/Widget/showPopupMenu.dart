@@ -1,53 +1,48 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_device_type/flutter_device_type.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:uahage/Widget/icon.dart';
 import 'package:uahage/Model/bottom_helper.dart';
 import 'package:page_transition/page_transition.dart';
 import 'package:uahage/Widget/toast.dart';
 import 'package:uahage/View/Navigations/HomeSub/listSub.dart';
-import 'package:uahage/Widget/starManager.dart';
+import 'dart:convert';
+import 'dart:async';
+import 'package:http/http.dart' as http;
 
 class showPopup extends StatelessWidget {
   icon iconwidget = new icon();
   toast show_toast = new toast();
 
-  List<bool> grey_image = [
-    true,
-    true,
-    true,
-    true,
-    true,
-    true,
-    true,
-    true,
-    true
+  List<int> grey_image = [
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
   ];
-
+  var place_id;
   var star_color;
 
-  StarManage starInsertDelete = new StarManage();
-  Future click_star(userId, loginOption, Message) async {
-    await starInsertDelete.click_star(
-        userId + loginOption,
-        Message[0],
-        Message[1],
-        Message[2],
-        Message[3],
-        Message[4],
-        Message[5],
-        Message[6],
-        Message[7],
-        Message[8],
-        Message[9],
-        Message[10],
-        Message[11],
-        null,
-        null,
-        star_color,
-        "restaurant");
-    print(star_color);
+bookmarkCreate() async {
+    var data = {"user_id": 59, "place_id": place_id};
+    var response = await http.post(
+      "http://112.187.123.29:8000/api/bookmarks",
+      headers: <String, String>{
+        'Content-Type': 'application/json; charset=UTF-8',
+      },
+      body: jsonEncode(data),
+    );
   }
+  bookmarkDelete() async {
+    var response = await http.delete(
+        "http://112.187.123.29:8000/api/bookmarks?user_id=59&place_id=$place_id");
+  }
+
+
 
   Future<Object> showPopUpMenu(context, double screenHeight, double screenWidth,
       latitude, longitude, grey_image) {
@@ -77,7 +72,7 @@ class showPopup extends StatelessWidget {
                               top: 85.h, left: 50.w, right: 50.w),
                           child: SizedBox(
                             child: GridView.count(
-                              // childAspectRatio: 3 / 2,
+
                               crossAxisCount: 3,
                               children: List.generate(9, (index) {
                                 return Scaffold(
@@ -86,12 +81,11 @@ class showPopup extends StatelessWidget {
                                     child: InkWell(
                                       onTap: () {
                                         setState(() {
-                                          grey_image[index] =
-                                              !grey_image[index];
+                                          grey_image[index] = 1;
                                         });
                                         print(grey_image);
                                       },
-                                      child: grey_image[index]
+                                      child: grey_image[index] == 0
                                           ? Image.asset(
                                               "./assets/searchPage/image" +
                                                   (index + 1).toString() +
@@ -125,21 +119,18 @@ class showPopup extends StatelessWidget {
                         child: FlatButton(
                           onPressed: () async {
                             Navigator.pop(context, grey_image);
-
                             grey_image = [
-                              true,
-                              true,
-                              true,
-                              true,
-                              true,
-                              true,
-                              true,
-                              true,
-                              true,
+                              0,
+                              0,
+                              0,
+                              0,
+                              0,
+                              0,
+                              0,
+                              0,
+                              0,
                             ];
-
-                            // print(isBirthdayFree);
-                          },
+                         },
                           shape: new RoundedRectangleBorder(
                             borderRadius: new BorderRadius.circular(8.0),
                           ),
@@ -176,10 +167,11 @@ class showPopup extends StatelessWidget {
       index,
       userId,
       loginOption,
-      star_colors,
-      type,
+       type,
       tableType) {
-    star_color = star_colors;
+    print(Message);
+    star_color = Message["bookmark"];
+    place_id = Message["id"];
     return showGeneralDialog(
         context: context,
         pageBuilder: (BuildContext buildContext, Animation<double> animation,
@@ -215,25 +207,20 @@ class showPopup extends StatelessWidget {
                       child: InkWell(
                         onTap: () async {
                           final btm = BottomButton(
-                              storeName: Message[0],
-                              address1: Message[1],
-                              phone1: Message[2],
-                              menu1: Message[3],
-                              bed1: Message[4],
-                              tableware1: Message[5],
-                              meetingroom1: Message[6],
-                              diapers1: Message[7],
-                              playroom1: Message[8],
-                              carriage1: Message[9],
-                              nursingroom1: Message[10],
-                              chair1: Message[11],
-                              Examination_item1: Message[12],
-                              fare1: Message[13]);
-                          // print(Message);
-                          // print(toMap);
-                          print(btm);
-                          print(btm.carriage);
-                          print(btm.store_name);
+                              storeName: Message["name"],
+                              address1: Message["address"],
+                              phone1: Message["phone"],
+                              carriage1: Message["carriage"],
+                              bed1: Message["bed"],
+                              tableware1: Message["tableware"],
+                              nursingroom1: Message["nursingroom"],
+                              meetingroom1: Message["meetingroom"],
+                              diapers1: Message["diapers"],
+                              chair1: Message["chair"],
+                              menu1: Message["menu"],
+                              playroom1:Message["playroom"],
+                              Examination_item1: Message["examination"],
+                              fare1: Message["fare"]);
 
                           final result = await Navigator.push(
                               context,
@@ -284,9 +271,9 @@ class showPopup extends StatelessWidget {
                                       Container(
                                         width: 700.w,
                                         child: Text(
-                                            Message[0].length <= 10
-                                                ? Message[0]
-                                                : Message[0].substring(0, 11),
+                                            Message["name"].length <= 10
+                                                ? Message["name"]
+                                                : Message["name"].substring(0, 11),
                                             style: TextStyle(
                                               color: const Color(0xff010000),
                                               fontWeight: FontWeight.w500,
@@ -299,9 +286,9 @@ class showPopup extends StatelessWidget {
                                       IconButton(
                                         padding: EdgeInsets.all(0),
                                         icon: Image.asset(
-                                            star_color
-                                                ? "./assets/listPage/star_color.png"
-                                                : "./assets/listPage/star_grey.png",
+                                            star_color=="0"
+                                                ? "./assets/listPage/star_grey.png"
+                                                : "./assets/listPage/star_color.png",
                                             height: 60.h),
                                         onPressed: loginOption == "login"
                                             ? () {
@@ -310,13 +297,17 @@ class showPopup extends StatelessWidget {
                                               }
                                             : () async {
                                                 setState(() {
-                                                  star_color = !star_color;
+                                                  if(star_color=="0"){
+                                                    star_color = "1";
+                                                    bookmarkCreate();
+                                                  }
+
+                                                  else {
+                                                    star_color = "0";
+                                                    bookmarkDelete();
+                                                  }
                                                 });
 
-                                                loginOption != "login"
-                                                    ? await click_star(userId,
-                                                        loginOption, Message)
-                                                    : null;
                                               },
                                       ),
                                     ],
@@ -326,7 +317,7 @@ class showPopup extends StatelessWidget {
                                   margin: EdgeInsets.only(top: 10.h),
                                   width: 650.w,
                                   height: 135.h,
-                                  child: Text(Message[1],
+                                  child: Text(Message["address"],
                                       style: TextStyle(
                                           color: const Color(0xffb0b0b0),
                                           fontWeight: FontWeight.w500,
@@ -342,16 +333,16 @@ class showPopup extends StatelessWidget {
                                   width: 650.w,
                                   alignment: Alignment.bottomRight,
                                   child: Row(children: [
-                                    iconwidget.menu(Message[3], context),
-                                    iconwidget.bed(Message[4], context),
-                                    iconwidget.tableware(Message[5], context),
-                                    iconwidget.meetingroom(Message[6], context),
-                                    iconwidget.diapers(Message[7], context),
-                                    iconwidget.playroom(Message[8], context),
-                                    iconwidget.carriage(Message[9], context),
+                                    iconwidget.menu(Message["menu"], context),
+                                    iconwidget.bed(Message["bed"], context),
+                                    iconwidget.tableware(Message["tableware"], context),
+                                    iconwidget.meetingroom(Message["meetingroom"], context),
+                                    iconwidget.diapers(Message["diapers"], context),
+                                    iconwidget.playroom(Message["playroom"], context),
+                                    iconwidget.carriage(Message["carriage"], context),
                                     iconwidget.nursingroom(
-                                        Message[10], context),
-                                    iconwidget.chair(Message[11], context),
+                                        Message["nursingroom"], context),
+                                    iconwidget.chair(Message["chiar"], context),
                                   ]),
                                 ),
                               ],

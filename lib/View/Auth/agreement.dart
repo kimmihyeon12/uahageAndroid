@@ -21,11 +21,12 @@ class agreementPage extends StatefulWidget {
 }
 
 class _agreementPageState extends State<agreementPage> {
+  String Email = "";
+  String userId = "";
+
   //kakao login----------------------------------------------------------------------------
   //-----------------------------------------------------------------------------------------
   bool _isKakaoTalkInstalled = false;
-  String _accountEmail = "";
-
   bool isAlreadyRegistered = false;
 
   _initKakaoTalkInstalled() async {
@@ -37,60 +38,68 @@ class _agreementPageState extends State<agreementPage> {
     });
   }
 
-  // check for nickname whether registered
-  // if true navigate to Navigation.dart
-  // else navigate to registration.dart
-  Future checkNickname() async {
-    var data;
+//회원가입 되있는지 check
+  Future checkEmail() async {
+    var response = await http.get(
+        "http://112.187.123.29:8000/api/users/find-by-option?option=email&optionData='${Email}${loginOption}'"
+         );
+    return jsonDecode(response.body)["isdata"] == 0 ? true : false ;
+
+   }
+
+  Future signIn() async {
     SharedPreferences sharedPreferences = await SharedPreferences.getInstance();
-    String id = sharedPreferences.getString("uahageUserId") ?? "";
-    String userId = "$id";
-    // Map<String, dynamic> ss =;
-    try {
-      var response = await http.post(
-        "http://121.147.203.126:8000/api/auth/check",
-        headers: <String, String>{
-          'Content-Type': 'application/json; charset=UTF-8',
-        },
-        body: jsonEncode({"userId": userId}),
-      );
-      // print("length " + jsonDecode(response.body).toString());
-      data = jsonDecode(response.body)["data"];
-      return data == false ? false : true;
-    } catch (err) {
-      print(err);
-      return Future.error(err);
+
+    Map<String, dynamic> userData  = {
+      "email": "'$Email$loginOption'",
+    };
+    var response = await http.post(
+      "http://112.187.123.29:8000/api/auth/signin",
+      headers: <String, String>{
+        'Content-Type': 'application/json; charset=UTF-8',
+      },
+      body: jsonEncode(userData),
+    );
+    if (response.statusCode == 200) {
+      var data = jsonDecode(response.body);
+      String token = data['data']['token'];
+      setState(() {
+        userId = data['data']['id'].toString();
+      });
+      //save user info
+      await sharedPreferences.setString("uahageUserToken", token);
+      await sharedPreferences.setString("uahageUserId", userId);
+      return data["message"];
     }
+
   }
 
   _issueAccessToken(String authCode) async {
     try {
       var token = await AuthApi.instance.issueAccessToken(authCode);
       AccessTokenStore.instance.toStore(token);
-
-      await _initTexts();
-      // await _create();
-      // await _saveUserId();
-      isAlreadyRegistered = await checkNickname();
-      if (isAlreadyRegistered) {
-        await _saveUserId();
-        Navigator.pushReplacement(
+      await kakaoGetEmail();
+      isAlreadyRegistered = await checkEmail();
+      print('isAlreadyRegistered ${isAlreadyRegistered}');
+      if (!isAlreadyRegistered) {
+        await signIn();
+         Navigator.pushReplacement(
             context,
             MaterialPageRoute(
               builder: (context) => navigationPage(
-                  userId: _accountEmail, loginOption: loginOption),
+                  userId: userId, loginOption: loginOption),
             ));
       } else {
         Navigator.pushReplacement(
             context,
             MaterialPageRoute(
               builder: (context) => registrationPage(
-                userId: _accountEmail,
+                Email: Email,
                 loginOption: loginOption,
               ),
             ));
       }
-      //push는 쌓임 , pushreplacement는 교체!
+
     } catch (e) {
       print(e.toString());
     }
@@ -114,32 +123,16 @@ class _agreementPageState extends State<agreementPage> {
     }
   }
 
-  _initTexts() async {
+  kakaoGetEmail() async {
     final User user = await UserApi.instance.me();
 
-    print(
-        "=========================[kakao account]=================================");
     print(user.kakaoAccount.toString());
-    print(
-        "=========================[kakao account]=================================");
 
     setState(() {
-      _accountEmail = user.kakaoAccount.email ?? "";
+      Email = user.kakaoAccount.email ?? "";
     });
   }
 
-  // _accounteamail 내부 db 저장
-  _saveUserId() async {
-    SharedPreferences prefs = await SharedPreferences.getInstance();
-    await prefs.setString('uahageUserEmail', _accountEmail);
-    await prefs.setString("uahageLoginOption", loginOption);
-    // setState(() {
-    //   //userId = (prefs.getString('userId') ?? "");
-
-    // });
-  }
-
-  // ************************************Naver Login ******************
   var accesToken;
   var tokenType;
 
@@ -153,19 +146,18 @@ class _agreementPageState extends State<agreementPage> {
       });
       NaverAccountResult resAccount = await FlutterNaverLogin.currentAccount();
       setState(() {
-        _accountEmail = resAccount.email;
+        Email = resAccount.email;
       });
-      print(_accountEmail);
-      // await _saveUserId();
-      isAlreadyRegistered = await checkNickname();
+
+      isAlreadyRegistered = await checkEmail();
       // create database
       if (isAlreadyRegistered) {
-        await _saveUserId();
+
         Navigator.pushReplacement(
           context,
           MaterialPageRoute(
               builder: (context) => navigationPage(
-                    userId: _accountEmail,
+                    userId: userId,
                     loginOption: loginOption,
                   )),
         );
@@ -174,7 +166,7 @@ class _agreementPageState extends State<agreementPage> {
           context,
           MaterialPageRoute(
               builder: (context) => registrationPage(
-                    userId: _accountEmail,
+                    Email: Email,
                     loginOption: loginOption,
                   )),
         );

@@ -39,8 +39,6 @@ class MyHomePage extends StatefulWidget {
 class _MyHomePageState extends State<MyHomePage> {
   String userId = "";
   String loginOption = "";
-  var Area;
-  var Locality;
   String latitude = "";
   String longitude = "";
   @override
