@@ -11,10 +11,10 @@ import 'package:uahage/Widget/toast.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:provider/provider.dart';
 import 'package:uahage/Provider/ConnectivityStatus.dart';
-
 import 'package:uahage/Widget/snackBar.dart';
-
 import 'package:uahage/Widget/showPopupMenu.dart';
+import 'dart:convert';
+import 'package:http/http.dart' as http;
 
 class Map_List_Toggle extends StatefulWidget {
   Map_List_Toggle(
@@ -56,36 +56,15 @@ class _Map_List_ToggleState extends State<Map_List_Toggle> {
     userId = widget.userId ?? "";
   }
 
-  StarManage starInsertDelete = new StarManage();
+
   toast show_toast = new toast();
-  Future click_star() async {
-    await starInsertDelete.click_star(
-        userId + loginOption,
-        Message[0],
-        Message[1],
-        Message[2],
-        Message[3],
-        Message[4],
-        Message[5],
-        Message[6],
-        Message[7],
-        Message[8],
-        Message[9],
-        Message[10],
-        Message[11],
-        null,
-        null,
-        star_color,
-        "restaurant");
+
+  bookmarkSelect(place_id) async {
+    var response = await http.get(
+        "http://112.187.123.29:8000/api/bookmarks?user_id=59&place_id=$place_id" );
+    return json.decode(response.body)["data"]["rowCount"];
   }
 
-  Future getSubStarColor() async {
-    star_color =
-        await starInsertDelete.getSubStarColor(userId, loginOption, Message[0]);
-    setState(() {
-      star_color = star_color;
-    });
-  }
 
   doneLoading(String A) {
     setState(() {
@@ -298,19 +277,39 @@ class _Map_List_ToggleState extends State<Map_List_Toggle> {
                                     Message = messages.split("|");
                                     Message.add(null);
                                     Message.add(null);
-                                    await getSubStarColor();
-                                    showpopup.showPopUpbottomMenu(
+                                    var bookmark = await bookmarkSelect(Message[0]);
+
+                                    var JsonMessage = {
+                                      "id": Message[0],
+                                      "name":  Message[1],
+                                      "address":  Message[2],
+                                      "phone":  Message[3],
+                                      "lat":  Message[4],
+                                      "lon":  Message[5],
+                                      "carriage":  Message[6],
+                                      "bed":  Message[7],
+                                      "tableware":  Message[8],
+                                      "nursingroom":  Message[9],
+                                      "meetingroom":  Message[10],
+                                      "diapers":  Message[11],
+                                      "playroom":  Message[12],
+                                      "chair":  Message[13],
+                                      "menu":  Message[14],
+                                      "bookmark":  bookmark.toString()
+                                    };
+
+                                    await  showpopup.showPopUpbottomMenu(
                                         context,
                                         2667.h,
                                         1501.w,
-                                        Message,
+                                        JsonMessage,
                                         index,
                                         userId,
                                         loginOption,
-                                        star_color,
-                                        "list",
+                                        "search",
                                         "restaurant");
-                                  })
+
+                                      })
                             ]),
                           ),
                           Row(

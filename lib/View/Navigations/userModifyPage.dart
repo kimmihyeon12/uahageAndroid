@@ -48,22 +48,28 @@ class _UserModifyState extends State<UserModify> {
   bool isIOS = Platform.isIOS;
   dynamic recievedImage;
   String id, token;
-
   toast show_toast = new toast();
-  Future checkNickname() async {
-    var data;
+
+  @override
+  void initState() {
+    super.initState();
+    loginOption = widget.loginOption;
+    userId = widget.userId ?? "";
+    recievedImage = widget.recievedImage ?? null;
+    id = widget.id;
+    token = widget.token;
+  }
+
+
+
+
+  Future checkNickName() async {
     try {
-      var response = await http.post(
-        "http://121.147.203.126:8000/api/auth/check",
-        headers: <String, String>{
-          'Content-Type': 'application/json; charset=UTF-8',
-        },
-        body: jsonEncode({"nickname": nickName}),
+      var response = await http.get(
+        "http://112.187.123.29:8000/api/users/find-by-option?option=nickname&optionData='${nickName}'",
       );
-      // print("length " + jsonDecode(response.body).toString());
-      data = jsonDecode(response.body)["data"];
-      print(data);
-      if (data == false) {
+      print("isdata nickname"+jsonDecode(response.body)["isdata"].toString());
+      if (jsonDecode(response.body)["isdata"]==0) {
         setState(() {
           isIdValid = true;
         });
@@ -76,9 +82,10 @@ class _UserModifyState extends State<UserModify> {
       }
     } catch (err) {
       print(err);
-      return err;
+      return Future.error(err);
     }
   }
+
 
   void _showPicker(context) {
     showModalBottomSheet(
@@ -96,9 +103,6 @@ class _UserModifyState extends State<UserModify> {
                       title: new Text('겔러리'),
                       onTap: () async {
                         await _imgFromGallery();
-                        // print("Calling upload func");
-
-                        // print(_uploadedFileURL);
                         Navigator.of(context).pop();
                       }),
                   new ListTile(
@@ -109,8 +113,6 @@ class _UserModifyState extends State<UserModify> {
                     title: new Text('카메라'),
                     onTap: () async {
                       await _imgFromCamera();
-                      // print("Calling upload func");
-
                       Navigator.of(context).pop();
                     },
                   ),
@@ -137,20 +139,21 @@ class _UserModifyState extends State<UserModify> {
   }
 
   Future deleteFile() async {
-    try {
-      print(imageLink);
+  try {
       await http.post(
-        "http://121.147.203.126:8000/api/s3/images-delete",
+        "http://112.187.123.29:8000/api/s3/images-delete",
         headers: <String, String>{
           'Content-Type': 'application/json; charset=UTF-8',
           "Authorization": token
         },
-        body: jsonEncode({"fileName": imageLink}),
+         body: jsonEncode({"fileName": imageLink}),
       );
+      setState(() {
+        recievedImage = null;
+      });
     } catch (err) {
-      print(err);
+      //print(err);
     }
-    await _saveURL("");
   }
 
   Future _imgFromCamera() async {
@@ -161,7 +164,6 @@ class _UserModifyState extends State<UserModify> {
       recievedImage = null;
       _image = File(image.path);
     });
-    // await uploadFile(_image);
   }
 
   Future _imgFromGallery() async {
@@ -169,18 +171,17 @@ class _UserModifyState extends State<UserModify> {
         .getImage(source: ImageSource.gallery, imageQuality: 20);
 
     setState(() {
-      // recievedImage = null;
-      _image = File(image.path);
       recievedImage = null;
+      _image = File(image.path);
     });
   }
+  
 
   uploadFile(File file) async {
     if (imageLink != "") {
       try {
-        // print(ss);
         await http.post(
-          "http://121.147.203.126:8000/api/s3/images-delete",
+          "http://112.187.123.29:8000/api/s3/images-delete",
           headers: <String, String>{
             'Content-Type': 'application/json; charset=UTF-8',
             "Authorization": token
@@ -199,14 +200,10 @@ class _UserModifyState extends State<UserModify> {
             await MultipartFile.fromFile(file.path, filename: fileName),
       });
       Dio dio = new Dio();
-      // dio.options.headers['content-Type'] = 'application/json';
-      // dio.options.headers["authorization"] = token;
       var response;
       try {
-        print(id);
-
         response = await dio.post(
-            'http://121.147.203.126:8000/api/s3/images/$id',
+            'http://112.187.123.29:8000/api/s3/images/$id',
             data: formData);
         setState(() {
           _uploadedFileURL = response.data["location"];
@@ -224,37 +221,34 @@ class _UserModifyState extends State<UserModify> {
 
   _saveURL(_uploadedFileURL) async {
     try {
-      await http
-          .patch(
-            "http://121.147.203.126:8000/api/users/$id",
-            headers: <String, String>{
-              'Content-Type': 'application/json; charset=UTF-8',
-              "Authorization": token
-            },
-            body: jsonEncode({"profile_url": _uploadedFileURL}),
-          )
-          .then((value) => print(value.body))
-          .catchError((err) => print(err));
+      await http.patch(
+        "http://112.187.123.29:8000/api/users/$id",
+        headers: <String, String>{
+          'Content-Type': 'application/json; charset=UTF-8',
+          "Authorization": token
+        },
+        body: jsonEncode({"profile_url": _uploadedFileURL}),
+      );
     } catch (error) {}
   }
 
-  Future updateNickname() async {
+  Future updataUser() async {
     try {
-      Map<String, dynamic> ss = {
+      Map<String, dynamic> userData = {
         "nickname": nickName,
         "gender": gender,
         "birthday": birthday,
         "age": userAge,
         "rf_token": token,
       };
-      print(ss);
+      print(userData);
       var response = await http.put(
-        "http://121.147.203.126:8000/api/users/$id",
+        "http://112.187.123.29:8000/api/users/$id",
         headers: <String, String>{
           'Content-Type': 'application/json; charset=UTF-8',
           "Authorization": token
         },
-        body: jsonEncode(ss),
+        body: jsonEncode(userData),
       );
       return response.statusCode == 200
           ? jsonDecode(response.body)["message"]
@@ -264,15 +258,7 @@ class _UserModifyState extends State<UserModify> {
     }
   }
 
-  @override
-  void initState() {
-    super.initState();
-    loginOption = widget.loginOption;
-    userId = widget.userId ?? "";
-    recievedImage = widget.recievedImage ?? null;
-    id = widget.id;
-    token = widget.token;
-  }
+
 
   @override
   Widget build(BuildContext context) {
@@ -341,6 +327,7 @@ class _UserModifyState extends State<UserModify> {
                           backgroundImage:
                               AssetImage("./assets/myPage/avatar.png"),
                           child: (() {
+                            print("here " + imageLink);
                             // your code here
                             if (recievedImage != null) {
                               if (recievedImage is String) {
@@ -369,7 +356,6 @@ class _UserModifyState extends State<UserModify> {
                                 );
                             } else if (_image != null) {
                               print("1");
-                              print("here " + imageLink);
                               return Container(
                                 decoration: BoxDecoration(
                                   shape: BoxShape.circle,
@@ -507,7 +493,7 @@ class _UserModifyState extends State<UserModify> {
                                                 print(nickName);
                                                 currentFocus.unfocus();
                                                 buildShowDialogOnOk(
-                                                    checkNickname(),
+                                                    checkNickName(),
                                                     context,
                                                     300.h,
                                                     200.h,
@@ -814,13 +800,17 @@ class _UserModifyState extends State<UserModify> {
                                 gender != "" &&
                                 userAge != ""
                             ? () async {
-                                print(userAge);
-                                await uploadFile(_image);
+                                 await uploadFile(_image);
+                                 if(imageLink==""){
+                                   print("imageLink");
+                                   await deleteFile();
+                                   await _saveURL("");
+                                 }
                                 showDialog(
                                   barrierDismissible: false,
                                   context: context,
                                   builder: (context) => FutureBuilder(
-                                    future: updateNickname(),
+                                    future: updataUser(),
                                     builder: (context, snapshot) {
                                       if (snapshot.hasData) {
                                         WidgetsBinding.instance
@@ -894,7 +884,7 @@ class _UserModifyState extends State<UserModify> {
     );
   }
 
-  //changimagecolor
+
   void _change(String age) {
     if (age == '10') {
       setState(() {

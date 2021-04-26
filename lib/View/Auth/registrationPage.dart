@@ -13,9 +13,9 @@ import 'package:uahage/Widget/appBar.dart';
 import 'package:uahage/Widget/showDialog.dart';
 
 class registrationPage extends StatefulWidget {
-  String userId;
+  String Email;
   String loginOption;
-  registrationPage({Key key, this.userId, this.loginOption}) : super(key: key);
+  registrationPage({Key key, this.Email, this.loginOption}) : super(key: key);
   @override
   _registrationPageState createState() => _registrationPageState();
 }
@@ -40,6 +40,7 @@ class _registrationPageState extends State<registrationPage> {
   String loginOption = "";
   String gender = "";
   String userAge = "";
+  String Email = "";
   String userId = "";
   bool saveError = false;
 
@@ -48,27 +49,18 @@ class _registrationPageState extends State<registrationPage> {
     super.initState();
     setState(() {
       loginOption = widget.loginOption;
-      userId = widget.userId;
+      Email = widget.Email;
     });
   }
 
-  // check for nickname whether exists in the database
-  // if it is being used returns false
-  // else returns true
-  Future checkNickname() async {
-    var data;
-    try {
-      var response = await http.post(
-        "http://121.147.203.126:8000/api/auth/check",
-        headers: <String, String>{
-          'Content-Type': 'application/json; charset=UTF-8',
-        },
-        body: jsonEncode({"nickname": nickName}),
+//check nickname
+  Future checkNickName() async {
+   try {
+      var response = await http.get(
+        "http://112.187.123.29:8000/api/users/find-by-option?option=nickname&optionData='${nickName}'",
       );
-      // print("length " + jsonDecode(response.body).toString());
-      data = jsonDecode(response.body)["data"];
-      print(data);
-      if (data == false) {
+     print("isdata nickname"+jsonDecode(response.body)["isdata"].toString());
+      if (jsonDecode(response.body)["isdata"]==0) {
         setState(() {
           isIdValid = true;
         });
@@ -85,52 +77,59 @@ class _registrationPageState extends State<registrationPage> {
     }
   }
 
-  Future saveToDatabase(String type) async {
+  Future signUp(String type) async {
     SharedPreferences sharedPreferences = await SharedPreferences.getInstance();
-    Map<String, dynamic> ss = type == "withNickname"
-        ? {
-            "email": userId + loginOption,
-            "nickname": nickName,
-            "gender": gender,
-            "birthday": "20",
-            "age": userAge,
-            "URL": "",
-            "rf_token": ""
-          }
-        : {
-            "email": userId + loginOption,
-            "nickname": "",
-            "gender": "",
-            "birthday": "",
-            "age": "",
-            "URL": "",
-            "rf_token": ""
-          };
-    print(ss);
-    var response = await http.post(
-      "http://121.147.203.126:8000/api/auth/signup",
-      headers: <String, String>{
-        'Content-Type': 'application/json; charset=UTF-8',
-      },
-      body: jsonEncode(ss),
-    );
-    if (response.statusCode == 200) {
-      setState(() {
-        saveError = false;
-      });
-      var data = jsonDecode(response.body);
-      String token = data['data']['token'];
-      String id = data['data']['id'].toString();
-      print("token $token");
-      await sharedPreferences.setString("uahageUserToken", token);
-      await sharedPreferences.setString("uahageUserId", id);
 
-      return data["message"];
-    } else {
-      setState(() {
-        saveError = true;
-      });
-      return Future.error(jsonDecode(response.body)["message"]);
+    Map<String, dynamic> userData = type == "withNickname"
+        ? {
+      "email": "'$Email$loginOption'",
+      "nickname": "'$nickName'",
+      "gender": "'$gender'",
+      "birthday": "'$birthday'",
+      "age": userAge,
+      "URL": null,
+      "rf_token": null
+    }
+    : {
+      "email": "'$Email$loginOption'",
+      "nickname": null,
+      "gender": null,
+      "birthday": null,
+      "age": null,
+      "URL": null,
+      "rf_token": null
+    };
+     try {
+      var response = await http.post(
+        "http://112.187.123.29:8000/api/auth/signup",
+        headers: <String, String>{
+          'Content-Type': 'application/json; charset=UTF-8',
+        },
+        body: jsonEncode(userData),
+      );
+
+      if (response.statusCode == 200) {
+        setState(() {
+          saveError = false;
+        });
+        var data = jsonDecode(response.body);
+        String token = data['data']['token'];
+        setState(() {
+          userId = data['data']['id'].toString();
+        });
+        //save user info
+        await sharedPreferences.setString("uahageUserToken", token);
+        await sharedPreferences.setString("uahageUserId", userId);
+
+        return data["message"];
+      } else {
+        setState(() {
+          saveError = true;
+        });
+        return Future.error(jsonDecode(response.body)["message"]);
+      }
+    } catch (error) {
+      return Future.error(error);
     }
   }
 
@@ -211,7 +210,7 @@ class _registrationPageState extends State<registrationPage> {
                                   ),
                                   focusedBorder: UnderlineInputBorder(
                                     borderSide:
-                                        BorderSide(color: Color(0xffff7292)),
+                                    BorderSide(color: Color(0xffff7292)),
                                   ),
                                   hintText: '닉네임을 입력하세요',
                                   hintStyle: TextStyle(
@@ -228,20 +227,20 @@ class _registrationPageState extends State<registrationPage> {
                                   child: FlatButton(
                                     shape: new RoundedRectangleBorder(
                                       borderRadius:
-                                          new BorderRadius.circular(8.0),
+                                      new BorderRadius.circular(8.0),
                                     ),
                                     onPressed: nickName != ""
                                         ? () {
-                                            currentFocus.unfocus();
-                                            buildShowDialogOnOk(
-                                                checkNickname(),
-                                                context,
-                                                200.h,
-                                                200.w,
-                                                80.w,
-                                                1501.w,
-                                                62.5.sp);
-                                          }
+                                      currentFocus.unfocus();
+                                      buildShowDialogOnOk(
+                                          checkNickName(),
+                                          context,
+                                          200.h,
+                                          200.w,
+                                          80.w,
+                                          1501.w,
+                                          62.5.sp);
+                                    }
                                         : () {},
                                     color: nickName == ""
                                         ? Color(0xffcacaca)
@@ -305,7 +304,7 @@ class _registrationPageState extends State<registrationPage> {
                           height: 362.h,
                           width: 262.w,
                           child:
-                              Image.asset(girl ? girl_image[0] : girl_image[1]),
+                          Image.asset(girl ? girl_image[0] : girl_image[1]),
                         ),
                         Padding(padding: EdgeInsets.only(bottom: 11)),
                       ]),
@@ -357,7 +356,7 @@ class _registrationPageState extends State<registrationPage> {
                                     ),
                                     focusedBorder: UnderlineInputBorder(
                                       borderSide:
-                                          BorderSide(color: Color(0xffff7292)),
+                                      BorderSide(color: Color(0xffff7292)),
                                     ),
                                     hintText: '생년월일을 선택해주세요',
                                     hintStyle: TextStyle(
@@ -514,54 +513,49 @@ class _registrationPageState extends State<registrationPage> {
                     borderRadius: new BorderRadius.circular(8.0),
                   ),
                   onPressed: isIdValid &&
-                          userAge != "" &&
-                          birthday != "" &&
-                          birthday != "" &&
-                          nickName != ""
+                      userAge != "" &&
+                      birthday != "" &&
+                      birthday != "" &&
+                      nickName != ""
                       ? () async {
-                          SharedPreferences prefs =
-                              await SharedPreferences.getInstance();
 
-                          await prefs.setString('uahageUserEmail', userId);
-                          await prefs.setString(
-                              "uahageLoginOption", loginOption);
-                          showDialog(
-                            barrierDismissible: false,
-                            context: context,
-                            builder: (context) => FutureBuilder(
-                                future: saveToDatabase("withNickname"),
-                                builder: (context, snapshot) {
-                                  if (snapshot.hasData) {
-                                    WidgetsBinding.instance
-                                        .addPostFrameCallback((_) async {
-                                      Navigator.pop(context);
-                                      saveError
-                                          ? null
-                                          : Navigator.pushReplacement(
-                                              context,
-                                              MaterialPageRoute(
-                                                builder: (context) =>
-                                                    navigationPage(
-                                                        oldNickname: nickName,
-                                                        userId: userId,
-                                                        loginOption:
-                                                            loginOption),
-                                              ));
-                                    });
-                                  } else if (snapshot.hasError)
-                                    return buildAlertDialog(
-                                        snapshot, 1500.h, context, _fontsize);
+                    showDialog(
+                      barrierDismissible: false,
+                      context: context,
+                      builder: (context) => FutureBuilder(
+                          future: signUp("withNickname"),
+                          builder: (context, snapshot) {
+                            if (snapshot.hasData) {
+                              WidgetsBinding.instance
+                                  .addPostFrameCallback((_) async {
+                                Navigator.pop(context);
+                                saveError
+                                    ? null
+                                    : Navigator.pushReplacement(
+                                    context,
+                                    MaterialPageRoute(
+                                      builder: (context) =>
+                                          navigationPage(
+                                              oldNickname: nickName,
+                                              userId: userId,
+                                              loginOption:
+                                              loginOption),
+                                    ));
+                              });
+                            } else if (snapshot.hasError)
+                              return buildAlertDialog(
+                                  snapshot, 1500.h, context, _fontsize);
 
-                                  return buildCenterProgress(1500.h, 2667.h);
-                                }),
-                          );
-                        }
+                            return buildCenterProgress(1500.h, 2667.h);
+                          }),
+                    );
+                  }
                       : () {},
                   color: isIdValid &&
-                          userAge != "" &&
-                          birthday != "" &&
-                          birthday != "" &&
-                          nickName != ""
+                      userAge != "" &&
+                      birthday != "" &&
+                      birthday != "" &&
+                      nickName != ""
                       ? Color(0xffff7292)
                       : Color(0xffcccccc),
                   child: Text(
@@ -580,28 +574,28 @@ class _registrationPageState extends State<registrationPage> {
               Center(
                 child: FlatButton(
                   onPressed: () async {
-                    SharedPreferences prefs =
-                        await SharedPreferences.getInstance();
-
-                    await prefs.setString('uahageUserId', userId);
-                    await prefs.setString("uahageLoginOption", loginOption);
+                    // SharedPreferences prefs =
+                    // await SharedPreferences.getInstance();
+                    //
+                    // await prefs.setString('uahageUserId', Email);
+                    // await prefs.setString("uahageLoginOption", loginOption);
                     showDialog(
                       context: context,
                       builder: (context) => FutureBuilder(
-                        future: saveToDatabase(""),
+                        future: signUp(""),
                         builder: (context, snapshot) {
                           if (snapshot.hasData) {
                             WidgetsBinding.instance
                                 .addPostFrameCallback((_) async {
                               Navigator.pop(context);
                               if (!saveError) {
-                                SharedPreferences prefs =
-                                    await SharedPreferences.getInstance();
-
-                                await prefs.setString(
-                                    'uahageUserEmail', userId);
-                                await prefs.setString(
-                                    "uahageLoginOption", loginOption);
+                                // SharedPreferences prefs =
+                                // await SharedPreferences.getInstance();
+                                //
+                                // await prefs.setString(
+                                //     'uahageUserEmail', Email);
+                                // await prefs.setString(
+                                //     "uahageLoginOption", loginOption);
                                 Navigator.pushReplacement(
                                   context,
                                   MaterialPageRoute(
@@ -644,13 +638,13 @@ class _registrationPageState extends State<registrationPage> {
           height: 200.h,
           width: 200.w,
           child: buildSpinKitThreeBounce(80, screenWidth)
-          // CircularProgressIndicator(
-          //   strokeWidth: 5.0,
-          //   valueColor: new AlwaysStoppedAnimation<Color>(
-          //     Colors.pinkAccent,
-          //   ),
-          // )
-          ),
+        // CircularProgressIndicator(
+        //   strokeWidth: 5.0,
+        //   valueColor: new AlwaysStoppedAnimation<Color>(
+        //     Colors.pinkAccent,
+        //   ),
+        // )
+      ),
     );
   }
 
@@ -660,22 +654,22 @@ class _registrationPageState extends State<registrationPage> {
       shape: RoundedRectangleBorder(
           borderRadius: BorderRadius.all(Radius.circular(20.0))),
       title:
-          // id already exists.
-          Text("${snapshot.error}",
-              style: TextStyle(
-                  color: Color(0xff4d4d4d),
-                  fontWeight: FontWeight.w500,
-                  fontFamily: "NotoSansCJKkr_Medium",
-                  fontStyle: FontStyle.normal,
-                  fontSize: 62.5.sp),
-              textAlign: TextAlign.left),
+      // id already exists.
+      Text("${snapshot.error}",
+          style: TextStyle(
+              color: Color(0xff4d4d4d),
+              fontWeight: FontWeight.w500,
+              fontFamily: "NotoSansCJKkr_Medium",
+              fontStyle: FontStyle.normal,
+              fontSize: 62.5.sp),
+          textAlign: TextAlign.left),
       actions: [
         FlatButton(
             onPressed: () {
               Navigator.pop(context);
             },
             child: // 확인
-                buildText(_fontsize))
+            buildText(_fontsize))
       ],
     );
   }

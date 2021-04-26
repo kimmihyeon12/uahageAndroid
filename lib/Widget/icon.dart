@@ -16,7 +16,7 @@ class icon extends StatelessWidget {
   menu(String menu, context) {
     var menus = menu.toString();
 
-    return menus == "○"
+    return menus == "1"
         ? Container(
             child: Image.asset(iconimage[0], width: 30, height: 30),
             padding: EdgeInsets.only(
@@ -32,7 +32,7 @@ class icon extends StatelessWidget {
   bed(String bed, context) {
     var beds = bed.toString();
 
-    return beds == "○"
+    return beds == "1"
         ? Container(
             child: Image.asset(iconimage[1], width: 30, height: 30),
             padding: EdgeInsets.only(
@@ -48,7 +48,7 @@ class icon extends StatelessWidget {
   tableware(String tableware, context) {
     var tablewares = tableware.toString();
 
-    return tablewares == "○"
+    return tablewares == "1"
         ? Container(
             child: Image.asset(iconimage[2], width: 30, height: 30),
             padding: EdgeInsets.only(
@@ -64,7 +64,7 @@ class icon extends StatelessWidget {
   meetingroom(String meetingroom, context) {
     var meetingrooms = meetingroom.toString();
 
-    return meetingrooms == "○"
+    return meetingrooms == "1"
         ? Container(
             child: Image.asset(iconimage[3], width: 30, height: 30),
             padding: EdgeInsets.only(
@@ -80,7 +80,7 @@ class icon extends StatelessWidget {
   diapers(String diapers, context) {
     var diaperss = diapers.toString();
 
-    return diaperss == "○"
+    return diaperss == "1"
         ? Container(
             child: Image.asset(iconimage[4], width: 30, height: 30),
             padding: EdgeInsets.only(
@@ -96,7 +96,7 @@ class icon extends StatelessWidget {
   playroom(String playroom, context) {
     var playrooms = playroom.toString();
 
-    return playrooms == "○"
+    return playrooms == "1"
         ? Container(
             child: Image.asset(iconimage[5], width: 30, height: 30),
             padding: EdgeInsets.only(
@@ -112,7 +112,7 @@ class icon extends StatelessWidget {
   carriage(String carriage, context) {
     var carriages = carriage.toString();
 
-    return carriages == "○"
+    return carriages == "1"
         ? Container(
             child: Image.asset(iconimage[6], width: 30, height: 30),
             padding: EdgeInsets.only(
@@ -126,7 +126,7 @@ class icon extends StatelessWidget {
   nursingroom(String nursingroom, context) {
     var nursingrooms = nursingroom.toString();
 
-    return nursingrooms == "○"
+    return nursingrooms == "1"
         ? Container(
             child: Image.asset(iconimage[7], width: 30, height: 30),
             padding: EdgeInsets.only(
@@ -142,7 +142,7 @@ class icon extends StatelessWidget {
   chair(String chair, context) {
     var chairs = chair.toString();
 
-    return chairs == "○"
+    return chairs == "1"
         ? Container(
             child: Image.asset(iconimage[8], width: 30, height: 30),
             padding: EdgeInsets.only(

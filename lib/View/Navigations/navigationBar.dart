@@ -70,6 +70,7 @@ class _navigationPageState extends State<navigationPage> {
     longitude = lacationprovider.getlongitude;
     print("latitude in nav provider: $latitude");
     print("longitude in nav provider: $longitude");
+    print("userID in nav provider: $userId");
 
     ScreenUtil.init(context, width: 1500, height: 2667);
     SystemChrome.setPreferredOrientations([
@@ -78,14 +79,14 @@ class _navigationPageState extends State<navigationPage> {
     ]);
     isIOS
         ? SystemChrome.setSystemUIOverlayStyle(SystemUiOverlayStyle.dark
-            .copyWith(
-                statusBarBrightness:
-                    Brightness.dark // Dark == white status bar -- for IOS.
-                ))
+        .copyWith(
+        statusBarBrightness:
+        Brightness.dark // Dark == white status bar -- for IOS.
+    ))
         : SystemChrome.setSystemUIOverlayStyle(SystemUiOverlayStyle(
-            systemNavigationBarColor: Color(0xffd9d4d5), // navigation bar color
-            statusBarColor: Color(0xffd9d4d5), // status bar color
-          ));
+      systemNavigationBarColor: Color(0xffd9d4d5), // navigation bar color
+      statusBarColor: Color(0xffd9d4d5), // status bar color
+    ));
     return WillPopScope(
       onWillPop: () {
         if (loginOption == 'login') {
@@ -128,79 +129,79 @@ class _navigationPageState extends State<navigationPage> {
                 ],
               ),
               bottomNavigationBar:
-                  (connectionStatus != ConnectivityStatus.Offline)
-                      ? BottomNavigationBar(
-                          currentIndex: _selectedTabIndex,
-                          showSelectedLabels: false, // <-- HERE
-                          showUnselectedLabels: false,
-                          elevation: 15,
-                          backgroundColor: Colors.white,
-                          onTap: (value) {
-                            setState(() {
-                              _selectedTabIndex = value;
-                            });
-                          },
-                          type: BottomNavigationBarType.fixed,
-                          items: [
-                            BottomNavigationBarItem(
-                              icon: Image.asset(
-                                "assets/NavigationbarPage/home_grey.png",
-                                width: 79.w,
-                                height: 144.h,
-                              ),
-                              label: "home",
-                              activeIcon: Image.asset(
-                                "assets/NavigationbarPage/home_pink.png",
-                                width: 79.w,
-                                height: 144.h,
-                              ),
-                              // title: Text("home"),
-                            ),
-                            BottomNavigationBarItem(
-                              label: "",
-                              icon: Image.asset(
-                                "assets/NavigationbarPage/search_grey.png",
-                                width: 79.w,
-                                height: 139.h,
-                              ),
-                              activeIcon: Image.asset(
-                                "assets/NavigationbarPage/search_pink.png",
-                                width: 79.w,
-                                height: 139.h,
-                              ),
-                              // title: Text("search"),
-                            ),
-                            BottomNavigationBarItem(
-                              label: "",
-                              icon: Image.asset(
-                                "assets/NavigationbarPage/star_grey.png",
-                                width: 162.w,
-                                height: 147.h,
-                              ),
-                              activeIcon: Image.asset(
-                                "assets/NavigationbarPage/star_pink.png",
-                                width: 162.w,
-                                height: 147.h,
-                              ),
-                              // title: Text("star"),
-                            ),
-                            BottomNavigationBarItem(
-                              label: "",
+              (connectionStatus != ConnectivityStatus.Offline)
+                  ? BottomNavigationBar(
+                currentIndex: _selectedTabIndex,
+                showSelectedLabels: false, // <-- HERE
+                showUnselectedLabels: false,
+                elevation: 15,
+                backgroundColor: Colors.white,
+                onTap: (value) {
+                  setState(() {
+                    _selectedTabIndex = value;
+                  });
+                },
+                type: BottomNavigationBarType.fixed,
+                items: [
+                  BottomNavigationBarItem(
+                    icon: Image.asset(
+                      "assets/NavigationbarPage/home_grey.png",
+                      width: 79.w,
+                      height: 144.h,
+                    ),
+                    label: "home",
+                    activeIcon: Image.asset(
+                      "assets/NavigationbarPage/home_pink.png",
+                      width: 79.w,
+                      height: 144.h,
+                    ),
+                    // title: Text("home"),
+                  ),
+                  BottomNavigationBarItem(
+                    label: "",
+                    icon: Image.asset(
+                      "assets/NavigationbarPage/search_grey.png",
+                      width: 79.w,
+                      height: 139.h,
+                    ),
+                    activeIcon: Image.asset(
+                      "assets/NavigationbarPage/search_pink.png",
+                      width: 79.w,
+                      height: 139.h,
+                    ),
+                    // title: Text("search"),
+                  ),
+                  BottomNavigationBarItem(
+                    label: "",
+                    icon: Image.asset(
+                      "assets/NavigationbarPage/star_grey.png",
+                      width: 162.w,
+                      height: 147.h,
+                    ),
+                    activeIcon: Image.asset(
+                      "assets/NavigationbarPage/star_pink.png",
+                      width: 162.w,
+                      height: 147.h,
+                    ),
+                    // title: Text("star"),
+                  ),
+                  BottomNavigationBarItem(
+                    label: "",
 
-                              icon: Image.asset(
-                                "assets/NavigationbarPage/mypage_grey.png",
-                                width: 132.w,
-                              ),
-                              activeIcon: Image.asset(
-                                "assets/NavigationbarPage/mypage_pink.png",
-                                width: 132.w,
-                                height: 141.h,
-                              ),
-                              // title: Text("mypage"),
-                            ),
-                          ],
-                        )
-                      : null)),
+                    icon: Image.asset(
+                      "assets/NavigationbarPage/mypage_grey.png",
+                      width: 132.w,
+                    ),
+                    activeIcon: Image.asset(
+                      "assets/NavigationbarPage/mypage_pink.png",
+                      width: 132.w,
+                      height: 141.h,
+                    ),
+                    // title: Text("mypage"),
+                  ),
+                ],
+              )
+                  : null)),
     );
   }
 }
