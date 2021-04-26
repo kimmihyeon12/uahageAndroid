@@ -13,6 +13,7 @@ import 'package:image_picker/image_picker.dart';
 import 'package:dio/dio.dart';
 import 'package:uahage/Widget/toast.dart ';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
+import 'package:flutter_config/flutter_config.dart';
 
 class myPage extends StatefulWidget {
   String loginOption;
@@ -37,7 +38,7 @@ class _myPageState extends State<myPage> {
   bool isIdValid = false;
   String loginOption = "";
   File _image;
-
+  String url;
   SharedPreferences sharedPreferences;
 
   String id = "";
@@ -51,9 +52,11 @@ class _myPageState extends State<myPage> {
   @override
   void initState() {
     super.initState();
-    setState(() {
-      userId = widget.userId ?? "";
-    });
+    url = FlutterConfig.get('API_URL');
+    print(url);
+    // setState(() {
+    //   userId = widget.userId ?? "";
+    // });
 
     if (loginOption != "login") {
       getMyInfo();
@@ -67,16 +70,17 @@ class _myPageState extends State<myPage> {
     sharedPreferences = await SharedPreferences.getInstance();
     setState(() {
       token = sharedPreferences.getString("uahageUserToken");
-      id = sharedPreferences.getString("uahageUserId");
+      userId = sharedPreferences.getString("uahageUserId");
       print(token);
-      print(id);
+      print(userId);
     });
     try {
-      var response = await http.get("http://112.187.123.29:8000/api/users/$id",
+      var response = await http.get(url + "/api/users/$userId",
           headers: <String, String>{"Authorization": token});
 
       if (jsonDecode(response.body)['message'] == 'finded successfully') {
         var data = jsonDecode(response.body)['data']["result"][0];
+        print(data);
         setState(() {
           isloding = true;
           //setting id
@@ -116,7 +120,7 @@ class _myPageState extends State<myPage> {
     if (imageLink != "") {
       try {
         await http.post(
-          "http://112.187.123.29:3000/api/profile/deleteImage",
+          url + "/api/profile/deleteImage",
           headers: <String, String>{
             'Content-Type': 'application/json; charset=UTF-8',
           },
@@ -126,7 +130,7 @@ class _myPageState extends State<myPage> {
     }
 
     try {
-      var res = await http.delete("http://112.187.123.29:8000/api/users/$id",
+      var res = await http.delete(url + "/api/users/$id",
           headers: <String, String>{"Authorization": token});
       var data = jsonDecode(res.body);
       if (res.statusCode == 200) {
@@ -225,22 +229,10 @@ class _myPageState extends State<myPage> {
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.center,
                   children: [
-                    (() {
-                      if (isloding) {
-                        Container(
-                            child: nickName == null
-                                ? nickNameShow("우아하게", 1500.w)
-                                : nickNameShow(nickName, 1500.w));
-                      } else {
-                        return Center(
-                          child: SizedBox(
-                            height: 50.h,
-                            width: 50.w,
-                            child: buildSpinKitThreeBounce(30, 1500.w),
-                          ),
-                        );
-                      }
-                    }()),
+                    Container(
+                        child: nickName == null
+                            ? nickNameShow("우아하게", 1500.w)
+                            : nickNameShow(nickName, 1500.w)),
                     Container(
                       child:
                           loginOption == "login" // Change this on release to ==

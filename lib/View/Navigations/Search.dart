@@ -8,15 +8,16 @@ import 'package:uahage/Model/bottom_helper.dart';
 import 'package:uahage/Provider/locationProvider.dart';
 
 import 'package:webview_flutter/webview_flutter.dart';
-import 'package:page_transition/page_transition.dart';
+ 
 import 'package:uahage/Widget/toast.dart';
 
 import 'package:uahage/Widget/icon.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:uahage/Widget/indexMap.dart';
-import 'dart:convert';
+ 
 import 'package:http/http.dart' as http;
 import 'package:uahage/Widget/showPopupMenu.dart';
+import 'package:flutter_config/flutter_config.dart';
 
 class searchPage extends StatefulWidget {
   searchPage(
@@ -48,6 +49,7 @@ class _searchPageState extends State<searchPage> {
   String userId = "";
   String loginOption = "";
   int index = 1;
+  String url;
   var Message;
   LocationProvider lacationprovider;
 
@@ -59,12 +61,12 @@ class _searchPageState extends State<searchPage> {
 
   Future searchCategory() async {
     controller.loadUrl(
-        "http://112.187.123.29:8000/maps/show-place?lat=$latitude&lon=$longitude&type=filter&menu=${grey_image[0]}&bed=${grey_image[1]}&tableware=${grey_image[2]}&meetingroom=${grey_image[3]}&diapers=${grey_image[4]}&playroom=${grey_image[5]}&carriage=${grey_image[6]}&nursingroom=${grey_image[7]}&chair=${grey_image[8]}");
+        url+"/maps/show-place?lat=$latitude&lon=$longitude&type=filter&menu=${grey_image[0]}&bed=${grey_image[1]}&tableware=${grey_image[2]}&meetingroom=${grey_image[3]}&diapers=${grey_image[4]}&playroom=${grey_image[5]}&carriage=${grey_image[6]}&nursingroom=${grey_image[7]}&chair=${grey_image[8]}");
   }
 
   bookmarkSelect(place_id) async {
     var response = await http.get(
-        "http://112.187.123.29:8000/api/bookmarks?user_id=59&place_id=$place_id" );
+        url+"/api/bookmarks?user_id=59&place_id=$place_id" );
     return json.decode(response.body)["data"]["rowCount"];
   }
 
@@ -75,6 +77,7 @@ class _searchPageState extends State<searchPage> {
   @override
   void initState() {
     setState(() {
+      url = FlutterConfig.get('API_URL');
       longitude = widget.longitude ?? "";
       latitude = widget.latitude ?? "";
       loginOption = widget.loginOption ?? "";
@@ -130,7 +133,7 @@ class _searchPageState extends State<searchPage> {
                   controller = webViewController;
                   print(latitude + "  " + longitude);
                   await controller.loadUrl(
-                      'http:///112.187.123.29:8000/maps?lat=$latitude&lon=$longitude');
+                      url+'/maps?lat=$latitude&lon=$longitude');
                   print(controller.currentUrl().toString());
                 },
 

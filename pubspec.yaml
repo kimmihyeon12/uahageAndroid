@@ -21,6 +21,7 @@ environment:
   sdk: ">=2.7.0 <3.0.0"
 
 dependencies:
+  flutter_config: ^1.0.8
   shared_preferences: ^0.5.7
   http: ^0.12.2
   crypto: ^2.1.5
