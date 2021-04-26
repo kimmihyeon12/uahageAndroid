@@ -118,6 +118,8 @@ class _registrationPageState extends State<registrationPage> {
         String token = data['data']['token'];
         setState(() {
           userId = data['data']['id'].toString();
+          print(token);
+          print(userId);
         });
         //save user info
         await sharedPreferences.setString("uahageUserToken", token);

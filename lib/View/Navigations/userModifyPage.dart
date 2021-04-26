@@ -205,7 +205,7 @@ class _UserModifyState extends State<UserModify> {
       var response;
       try {
         response = await dio.post(
-            'http://112.187.123.29:8000/api/s3/images/$id',
+            url+'/api/s3/images/$id',
             data: formData);
         setState(() {
           _uploadedFileURL = response.data["location"];

@@ -128,7 +128,6 @@ class _searchPageState extends State<searchPage> {
                 key: key,
                 onPageFinished: doneLoading,
                 onPageStarted: startLoading,
-                // initialUrl: 'http://121.147.203.126:8000/map',
                 onWebViewCreated: (WebViewController webViewController) async {
                   controller = webViewController;
                   print(latitude + "  " + longitude);

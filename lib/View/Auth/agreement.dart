@@ -49,6 +49,7 @@ class _agreementPageState extends State<agreementPage> {
    }
 
   Future signIn() async {
+
     SharedPreferences sharedPreferences = await SharedPreferences.getInstance();
 
     Map<String, dynamic> userData  = {
@@ -63,6 +64,7 @@ class _agreementPageState extends State<agreementPage> {
     );
     if (response.statusCode == 200) {
       var data = jsonDecode(response.body);
+
       String token = data['data']['token'];
       setState(() {
         userId = data['data']['id'].toString();
@@ -81,9 +83,9 @@ class _agreementPageState extends State<agreementPage> {
       AccessTokenStore.instance.toStore(token);
       await kakaoGetEmail();
       isAlreadyRegistered = await checkEmail();
-      print('isAlreadyRegistered ${isAlreadyRegistered}');
+
       if (!isAlreadyRegistered) {
-        await signIn();
+       await signIn();
          Navigator.pushReplacement(
             context,
             MaterialPageRoute(
