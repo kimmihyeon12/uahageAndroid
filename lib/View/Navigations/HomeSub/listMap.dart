@@ -10,8 +10,7 @@ import 'package:uahage/View/Navigations/HomeSub/listSub.dart';
 import 'package:uahage/Widget/showPopupMenu.dart';
 import 'dart:convert';
 import 'dart:async';
-import 'package:http/http.dart' as http;
-
+import 'package:uahage/API/bookMark.dart';
 import 'package:flutter_config/flutter_config.dart';
 
 class map_list extends StatefulWidget {
@@ -52,11 +51,8 @@ class _map_listState extends State<map_list> {
     controller.loadUrl(
        url+"/maps/show-place?lat=$latitude&lon=$longitude&type=filter&user_id=59&menu=${grey_image[0]}&bed=${grey_image[1]}&tableware=${grey_image[2]}&meetingroom=${grey_image[3]}&diapers=${grey_image[4]}&playroom=${grey_image[5]}&carriage=${grey_image[6]}&nursingroom=${grey_image[7]}&chair=${grey_image[8]}");
   }
-  bookmarkSelect(place_id) async {
-    var response = await http.get(
-       url+"/api/bookmarks?user_id=59&place_id=$place_id" );
-    return json.decode(response.body)["data"]["rowCount"];
-  }
+
+
 
 
 
@@ -137,9 +133,8 @@ class _map_listState extends State<map_list> {
                       onMessageReceived: (JavascriptMessage message) async {
                         var messages = message.message;
                         Message = messages.split("|");
-                        var bookmark = await bookmarkSelect(Message[0]);
-                        print(Message);
-                        var JsonMessage = {
+                        var bookmark = await bookMark.bookmarkSelect(userId,Message[0]);
+                         var JsonMessage = {
                           "id": Message[0],
                           "name":  Message[1],
                           "address":  Message[2],

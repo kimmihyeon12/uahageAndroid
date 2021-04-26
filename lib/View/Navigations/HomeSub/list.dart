@@ -7,7 +7,8 @@ import 'dart:async';
 import 'listMap.dart';
 import 'package:page_transition/page_transition.dart';
 import 'package:uahage/Widget/toast.dart';
-import 'package:uahage/Widget/starManager.dart';
+import 'package:uahage/Widget/static.dart';
+
 import 'package:uahage/Model//Restaurant_helper.dart';
 import 'package:uahage/Widget/icon.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
@@ -16,8 +17,9 @@ import 'package:uahage/Model/experience_center_helper.dart';
 import 'package:uahage/Model/examination_institution_helper.dart';
 import 'package:uahage/View/Navigations/HomeSub/listSub.dart';
 import 'package:flutter_config/flutter_config.dart';
+import 'package:uahage/API/bookMark.dart';
+
 class ListPage extends StatefulWidget {
-  String loginOption;
   String userId;
   String latitude = "";
   String longitude = "";
@@ -29,7 +31,6 @@ class ListPage extends StatefulWidget {
   ListPage(
       {Key key,
       this.userId,
-      this.loginOption,
       this.latitude,
       this.longitude,
       this.Area,
@@ -44,7 +45,7 @@ class _ListPageState extends State<ListPage> {
   String latitude = "";
   String longitude = "";
   String userId = "";
-  String loginOption = "";
+
   String Area = "";
   String Locality = "";
   String tableType = "";
@@ -89,7 +90,6 @@ class _ListPageState extends State<ListPage> {
   Future<List<dynamic>> myFuture;
   final GlobalKey<ScaffoldState> _scaffoldKey = GlobalKey<ScaffoldState>();
   ScrollController _scrollController = ScrollController();
-  StarManage starInsertDelete = new StarManage();
   List<dynamic> sortedListData = [];
   List<dynamic> sortedStarList = [];
   Map<double, dynamic> map = new Map();
@@ -98,12 +98,12 @@ class _ListPageState extends State<ListPage> {
   bool isLoading;
   var place_id;
   var place_code;
-  String url;
+  String url = URL;
   @override
   void initState() {
-    url = FlutterConfig.get('API_URL');
+    // url = FlutterConfig.get('API_URL');
     sortedListData = [];
-    loginOption = widget.loginOption;
+
     userId = widget.userId ?? "";
     latitude = widget.latitude ?? "";
     longitude = widget.longitude ?? "";
@@ -124,22 +124,6 @@ class _ListPageState extends State<ListPage> {
     });
   }
 
-  bookmarkCreate() async {
-    var data = {"user_id": 59, "place_id": place_id};
-    var response = await http.post(
-     url+"/api/bookmarks",
-      headers: <String, String>{
-        'Content-Type': 'application/json; charset=UTF-8',
-      },
-      body: jsonEncode(data),
-    );
-  }
-
-  bookmarkDelete() async {
-    var response = await http.delete(
-       url+"/api/bookmarks?user_id=59&place_id=$place_id");
-  }
-
   Future<List<dynamic>> _getDataList() async {
     if (tableType == 'restaurant') {
       place_code = 1;
@@ -151,8 +135,8 @@ class _ListPageState extends State<ListPage> {
       place_code = 5;
     }
 
-    final response = await http.get(
-        url+'/api/places?place_code=$place_code&lat=$latitude&lon=$longitude&pageNumber=$pageNumber&user_id=59');
+    final response = await http.get(url +
+        '/api/places?place_code=$place_code&lat=$latitude&lon=$longitude&pageNumber=$pageNumber&user_id=$userId');
     List responseJson = json.decode(response.body)["data"]["rows"];
     if (json.decode(response.body)["message"] == false) {
     } else {
@@ -289,7 +273,6 @@ class _ListPageState extends State<ListPage> {
             listView(context, 1501.w, 2667.h),
             map_list(
               userId: userId,
-              loginOption: loginOption,
               latitude: latitude,
               longitude: longitude,
               list: tableType,
@@ -308,9 +291,6 @@ class _ListPageState extends State<ListPage> {
             child: Text("${snapshot.error}"),
           );
         } else if (snapshot.hasData && snapshot.data != null) {
-          //     sortedStarList.length != 0) {
-          // print("snapshot.hasData: ${snapshot.hasData}  ${snapshot.data}");
-          print("length" + sortedListData.length.toString());
           return Scrollbar(
             child: ListView.builder(
                 controller: _scrollController,
@@ -339,7 +319,6 @@ class _ListPageState extends State<ListPage> {
                                         index: index,
                                         data: snapshot.data[index],
                                         userId: userId,
-                                        loginOption: loginOption,
                                         tableType: tableType,
                                       ),
                                       duration: Duration(milliseconds: 250),
@@ -525,23 +504,16 @@ class _ListPageState extends State<ListPage> {
                                       : "./assets/listPage/star_color.png",
                                   height: 60.h,
                                 ),
-                                onPressed:
-                                    loginOption == "login"
-                                    ? () {
-                                        show_toast.showToast(
-                                            context, "로그인해주세요!");
-                                      }
-                                    :
-                                    () async {
+                                onPressed: () async {
                                   setState(() {
                                     print(snapshot.data[index].id);
                                     place_id = snapshot.data[index].id;
                                   });
                                   if (snapshot.data[index].bookmark == 0) {
-                                    bookmarkCreate();
+                                    bookMark.bookmarkCreate(userId, place_id);
                                     snapshot.data[index].bookmark = 1;
                                   } else {
-                                    bookmarkDelete();
+                                    bookMark.bookmarkDelete(userId, place_id);
                                     snapshot.data[index].bookmark = 0;
                                   }
                                 },

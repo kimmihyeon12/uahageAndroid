@@ -13,7 +13,8 @@ class BottomButton {
         this.nursingroom1,
         this.chair1,
         this.Examination_item1,
-        this.fare1});
+        this.fare1,
+      this.bookmark1});
   String storeName;
   String address1;
   String phone1;
@@ -28,6 +29,7 @@ class BottomButton {
   String chair1;
   String Examination_item1;
   String fare1;
+  String bookmark1;
 
   String get store_name => storeName;
   String get address => address1;
@@ -43,6 +45,7 @@ class BottomButton {
   String get chair => chair1;
   String get Examination_item => Examination_item1;
   String get fare => fare1;
+  String get bookmark => bookmark1;
 // Map<String, dynamic> toMap() {
 //   return {
 //     "store_name": store_name,

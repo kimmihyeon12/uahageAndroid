@@ -1,20 +1,14 @@
 import 'dart:convert';
 import 'dart:io';
 import 'package:flutter/material.dart';
-
 import 'package:flutter_spinkit/flutter_spinkit.dart';
 import 'package:provider/provider.dart';
-import 'package:uahage/Model/bottom_helper.dart';
 import 'package:uahage/Provider/locationProvider.dart';
-
 import 'package:webview_flutter/webview_flutter.dart';
-
 import 'package:uahage/Widget/toast.dart';
-
 import 'package:uahage/Widget/icon.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:uahage/Widget/indexMap.dart';
-
 import 'package:http/http.dart' as http;
 import 'package:uahage/Widget/showPopupMenu.dart';
 import 'package:flutter_config/flutter_config.dart';

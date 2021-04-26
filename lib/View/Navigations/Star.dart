@@ -6,13 +6,13 @@ import 'dart:convert';
 import 'dart:async';
 import 'package:flutter_spinkit/flutter_spinkit.dart';
 import 'package:page_transition/page_transition.dart';
-import 'package:uahage/Widget/starManager.dart';
 import 'package:uahage/View/Navigations/HomeSub/listSub.dart ';
 import 'package:uahage/Widget/appBar.dart';
 import 'package:uahage/Widget/icon.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:provider/provider.dart';
 import 'package:uahage/Provider/ConnectivityStatus.dart';
+import 'package:uahage/Widget/static.dart';
 
 class starPage extends StatefulWidget {
   String loginOption;
@@ -57,44 +57,13 @@ class _starPageState extends State<starPage> {
   }
 
   final GlobalKey<AnimatedListState> listKey = GlobalKey<AnimatedListState>();
-  StarManage starInsertDelete = new StarManage();
-  click_star(address1) async {
-    var response = await starInsertDelete.click_star(
-        userId + loginOption,
-        null,
-        address1,
-        null,
-        null,
-        null,
-        null,
-        null,
-        null,
-        null,
-        null,
-        null,
-        null,
-        null,
-        null,
-        false,
-        null);
-    if (jsonDecode(response)["affectedRows"] == 1) setState(() {});
-  }
 
-  bool isIOS = Platform.isIOS;
-  bool isIphoneX = Device.get().isIphoneX;
   appbar bar = new appbar();
   @override
   Widget build(BuildContext context) {
     ConnectivityStatus connectionStatus =
         Provider.of<ConnectivityStatus>(context);
-    if (isIphoneX) {
-      ScreenUtil.init(context, width: 2345, height: 5076);
-    } else if (isIOS) {
-      print("shu1");
-      ScreenUtil.init(context, width: 781.5, height: 1390);
-    } else {
-      ScreenUtil.init(context, width: 1501, height: 2667);
-    }
+    ScreenUtil.init(context, width: 1501, height: 2667);
     return Scaffold(
         backgroundColor: Colors.white,
         appBar: bar.navHome_abbbar("즐겨찾기", context),
@@ -183,7 +152,7 @@ class _starPageState extends State<starPage> {
                                     ),
                                     onDismissed: (direction) async {
                                       var data = snapshot.data[index];
-                                      await click_star(data.address);
+                                      //     await click_star(data.address);
                                       // setState(() {
                                       snapshot.data.removeAt(index);
                                       // });
@@ -386,9 +355,9 @@ class _starPageState extends State<starPage> {
                                                   onPressed: () async {
                                                     var data =
                                                         snapshot.data[index];
-                                                    await click_star(
-                                                      data.address,
-                                                    );
+                                                    // await click_star(
+                                                    //   data.address,
+                                                    // );
                                                     //setState(() {
                                                     snapshot.data
                                                         .removeAt(index);
@@ -493,10 +462,11 @@ class _starPageState extends State<starPage> {
   Future _getstar() async {
     var star_list1 = [];
     // starColor = [];
-    var data = await http
-        .get('http://hohocompany.co.kr/starlist?user_id=$userId$loginOption');
+    var data = await http.get(URL + '/api/bookmarks/?user_id=$userId');
 
-    var jsonData = json.decode(data.body);
+    var jsonData = json.decode(data.body)['data']['rows'];
+    print(jsonData);
+
     for (var r in jsonData) {
       Star_list star_list = Star_list(
           r["id"],

@@ -4,7 +4,7 @@ import 'package:webview_flutter/webview_flutter.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:page_transition/page_transition.dart';
-import 'package:uahage/Widget/starManager.dart';
+
 import 'package:flutter_spinkit/flutter_spinkit.dart';
 import 'package:uahage/Widget/icon.dart';
 import 'package:uahage/Widget/toast.dart';

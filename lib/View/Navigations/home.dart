@@ -28,7 +28,6 @@ class homePage extends StatefulWidget {
 }
 
 class _homePageState extends State<homePage> {
-  String loginOption = "";
   String userId = "";
   String Area = "";
   String Locality = "";
@@ -45,7 +44,6 @@ class _homePageState extends State<homePage> {
   @override
   void initState() {
     setState(() {
-      loginOption = widget.loginOption;
       userId = widget.userId ?? "";
       latitude = widget.latitude ?? "";
       longitude = widget.longitude ?? "";
@@ -206,7 +204,6 @@ class _homePageState extends State<homePage> {
                                           MaterialPageRoute(
                                               builder: (context) => Keyword(
                                                   userId: userId,
-                                                  loginOption: loginOption,
                                                   latitude: latitude,
                                                   longitude: longitude,
                                                   searchkey: searchkey)))
@@ -256,7 +253,7 @@ class _homePageState extends State<homePage> {
                               MaterialPageRoute(
                                   builder: (context) => ListPage(
                                         userId: userId,
-                                        loginOption: loginOption,
+
                                         latitude: latitude,
                                         longitude: longitude,
                                         Area: Area,
@@ -282,7 +279,7 @@ class _homePageState extends State<homePage> {
                               MaterialPageRoute(
                                   builder: (context) => ListPage(
                                         userId: userId,
-                                        loginOption: loginOption,
+
                                         latitude: latitude,
                                         longitude: longitude,
                                          tableType: "Examination_institution",
@@ -345,7 +342,7 @@ class _homePageState extends State<homePage> {
                               MaterialPageRoute(
                                   builder: (context) => ListPage(
                                         userId: userId,
-                                        loginOption: loginOption,
+
                                         latitude: latitude,
                                         longitude: longitude,
                                     tableType: "Kids_cafe",
@@ -369,7 +366,7 @@ class _homePageState extends State<homePage> {
                               MaterialPageRoute(
                                   builder: (context) => ListPage(
                                         userId: userId,
-                                        loginOption: loginOption,
+
                                         latitude: latitude,
                                         longitude: longitude,
                                     tableType: "Experience_center",

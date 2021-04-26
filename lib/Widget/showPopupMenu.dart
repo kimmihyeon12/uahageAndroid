@@ -5,9 +5,9 @@ import 'package:uahage/Model/bottom_helper.dart';
 import 'package:page_transition/page_transition.dart';
 import 'package:uahage/Widget/toast.dart';
 import 'package:uahage/View/Navigations/HomeSub/listSub.dart';
-import 'dart:convert';
+
 import 'dart:async';
-import 'package:http/http.dart' as http;
+import 'package:uahage/API/bookMark.dart';
 
 class showPopup extends StatelessWidget {
   icon iconwidget = new icon();
@@ -27,20 +27,6 @@ class showPopup extends StatelessWidget {
   var place_id;
   var star_color;
 
-bookmarkCreate() async {
-    var data = {"user_id": 59, "place_id": place_id};
-    var response = await http.post(
-      "http://112.187.123.29:8000/api/bookmarks",
-      headers: <String, String>{
-        'Content-Type': 'application/json; charset=UTF-8',
-      },
-      body: jsonEncode(data),
-    );
-  }
-  bookmarkDelete() async {
-    var response = await http.delete(
-        "http://112.187.123.29:8000/api/bookmarks?user_id=59&place_id=$place_id");
-  }
 
 
 
@@ -220,7 +206,9 @@ bookmarkCreate() async {
                               menu1: Message["menu"],
                               playroom1:Message["playroom"],
                               Examination_item1: Message["examination"],
-                              fare1: Message["fare"]);
+                              fare1: Message["fare"],
+                              bookmark1 :Message["bookmark"]
+                          );
 
                           final result = await Navigator.push(
                               context,
@@ -299,12 +287,12 @@ bookmarkCreate() async {
                                                 setState(() {
                                                   if(star_color=="0"){
                                                     star_color = "1";
-                                                    bookmarkCreate();
+                                                    bookMark.bookmarkCreate(userId,place_id);
                                                   }
 
                                                   else {
                                                     star_color = "0";
-                                                    bookmarkDelete();
+                                                    bookMark.bookmarkDelete(userId,place_id);
                                                   }
                                                 });
 
