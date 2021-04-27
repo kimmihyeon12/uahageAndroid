@@ -10,7 +10,6 @@ import 'dart:async';
 import 'package:uahage/API/bookMark.dart';
 
 class showPopup extends StatelessWidget {
-  icon iconwidget = new icon();
   toast show_toast = new toast();
 
   List<int> grey_image = [
@@ -26,9 +25,6 @@ class showPopup extends StatelessWidget {
   ];
   var place_id;
   var star_color;
-
-
-
 
   Future<Object> showPopUpMenu(context, double screenHeight, double screenWidth,
       latitude, longitude, grey_image) {
@@ -58,7 +54,6 @@ class showPopup extends StatelessWidget {
                               top: 85.h, left: 50.w, right: 50.w),
                           child: SizedBox(
                             child: GridView.count(
-
                               crossAxisCount: 3,
                               children: List.generate(9, (index) {
                                 return Scaffold(
@@ -116,7 +111,7 @@ class showPopup extends StatelessWidget {
                               0,
                               0,
                             ];
-                         },
+                          },
                           shape: new RoundedRectangleBorder(
                             borderRadius: new BorderRadius.circular(8.0),
                           ),
@@ -153,7 +148,7 @@ class showPopup extends StatelessWidget {
       index,
       userId,
       loginOption,
-       type,
+      type,
       tableType) {
     print(Message);
     star_color = Message["bookmark"];
@@ -193,7 +188,7 @@ class showPopup extends StatelessWidget {
                       child: InkWell(
                         onTap: () async {
                           final btm = BottomButton(
-                              id1 : Message["id"],
+                              id1: Message["id"],
                               storeName: Message["name"],
                               address1: Message["address"],
                               phone1: Message["phone"],
@@ -205,11 +200,10 @@ class showPopup extends StatelessWidget {
                               diapers1: Message["diapers"],
                               chair1: Message["chair"],
                               menu1: Message["menu"],
-                              playroom1:Message["playroom"],
+                              playroom1: Message["playroom"],
                               Examination_item1: Message["examination"],
                               fare1: Message["fare"],
-                              bookmark1 :Message["bookmark"]
-                          );
+                              bookmark1: Message["bookmark"]);
 
                           final result = await Navigator.push(
                               context,
@@ -262,7 +256,8 @@ class showPopup extends StatelessWidget {
                                         child: Text(
                                             Message["name"].length <= 10
                                                 ? Message["name"]
-                                                : Message["name"].substring(0, 11),
+                                                : Message["name"]
+                                                    .substring(0, 11),
                                             style: TextStyle(
                                               color: const Color(0xff010000),
                                               fontWeight: FontWeight.w500,
@@ -275,7 +270,7 @@ class showPopup extends StatelessWidget {
                                       IconButton(
                                         padding: EdgeInsets.all(0),
                                         icon: Image.asset(
-                                            star_color=="0"
+                                            star_color == "0"
                                                 ? "./assets/listPage/star_grey.png"
                                                 : "./assets/listPage/star_color.png",
                                             height: 60.h),
@@ -286,17 +281,16 @@ class showPopup extends StatelessWidget {
                                               }
                                             : () async {
                                                 setState(() {
-                                                  if(star_color=="0"){
+                                                  if (star_color == "0") {
                                                     star_color = "1";
-                                                    bookMark.bookmarkCreate(userId,place_id);
-                                                  }
-
-                                                  else {
+                                                    bookMark.bookmarkCreate(
+                                                        userId, place_id);
+                                                  } else {
                                                     star_color = "0";
-                                                    bookMark.bookmarkDelete(userId,place_id);
+                                                    bookMark.bookmarkDelete(
+                                                        userId, place_id);
                                                   }
                                                 });
-
                                               },
                                       ),
                                     ],
@@ -322,16 +316,17 @@ class showPopup extends StatelessWidget {
                                   width: 650.w,
                                   alignment: Alignment.bottomRight,
                                   child: Row(children: [
-                                    iconwidget.menu(Message["menu"], context),
-                                    iconwidget.bed(Message["bed"], context),
-                                    iconwidget.tableware(Message["tableware"], context),
-                                    iconwidget.meetingroom(Message["meetingroom"], context),
-                                    iconwidget.diapers(Message["diapers"], context),
-                                    iconwidget.playroom(Message["playroom"], context),
-                                    iconwidget.carriage(Message["carriage"], context),
-                                    iconwidget.nursingroom(
-                                        Message["nursingroom"], context),
-                                    iconwidget.chair(Message["chiar"], context),
+                                    icon.menu(Message['menu'], context),
+                                    icon.bed(Message['bed'], context),
+                                    icon.tableware(Message['tableware'], context),
+                                    icon.meetingroom(Message['meetingroom'], context),
+                                    icon.diapers(Message['diapers'], context),
+                                    icon.playroom(Message['playroom'], context),
+                                    icon.carriage(Message['carriage'], context),
+                                    icon.nursingroom(
+                                        Message['nursingroom'], context),
+                                    icon.chair(Message['chiar'], context),
+
                                   ]),
                                 ),
                               ],

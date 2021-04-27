@@ -90,7 +90,6 @@ class _homePageState extends State<homePage> {
     appbar bar = new appbar();
 
     imageView(fileName) {
-
       return CachedNetworkImage(
         imageUrl:
             "https://uahage.s3.ap-northeast-2.amazonaws.com/homepage/$fileName.png",
@@ -126,7 +125,6 @@ class _homePageState extends State<homePage> {
                         });
                       },
                     ),
-
                     Align(
                       alignment: Alignment.topRight,
                       child: Container(
@@ -253,11 +251,8 @@ class _homePageState extends State<homePage> {
                               MaterialPageRoute(
                                   builder: (context) => ListPage(
                                         userId: userId,
-
                                         latitude: latitude,
                                         longitude: longitude,
-                                        Area: Area,
-                                        Locality: Locality,
                                         tableType: "restaurant",
                                       )));
                         },
@@ -279,10 +274,9 @@ class _homePageState extends State<homePage> {
                               MaterialPageRoute(
                                   builder: (context) => ListPage(
                                         userId: userId,
-
                                         latitude: latitude,
                                         longitude: longitude,
-                                         tableType: "Examination_institution",
+                                        tableType: "Examination_institution",
                                       )));
                         },
                       ),
@@ -342,10 +336,9 @@ class _homePageState extends State<homePage> {
                               MaterialPageRoute(
                                   builder: (context) => ListPage(
                                         userId: userId,
-
                                         latitude: latitude,
                                         longitude: longitude,
-                                    tableType: "Kids_cafe",
+                                        tableType: "Kids_cafe",
                                       )));
                         },
                       ),
@@ -366,10 +359,9 @@ class _homePageState extends State<homePage> {
                               MaterialPageRoute(
                                   builder: (context) => ListPage(
                                         userId: userId,
-
                                         latitude: latitude,
                                         longitude: longitude,
-                                    tableType: "Experience_center",
+                                        tableType: "Experience_center",
                                       )));
                         },
                       ),

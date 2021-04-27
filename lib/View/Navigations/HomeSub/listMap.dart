@@ -49,14 +49,8 @@ class _map_listState extends State<map_list> {
   var place_id;
   Future searchCategory() async {
     controller.loadUrl(
-       url+"/maps/show-place?lat=$latitude&lon=$longitude&type=filter&user_id=59&menu=${grey_image[0]}&bed=${grey_image[1]}&tableware=${grey_image[2]}&meetingroom=${grey_image[3]}&diapers=${grey_image[4]}&playroom=${grey_image[5]}&carriage=${grey_image[6]}&nursingroom=${grey_image[7]}&chair=${grey_image[8]}");
+       url+"/maps/show-place?lat=$latitude&lon=$longitude&type=filter&user_id=${userId}&menu=${grey_image[0]}&bed=${grey_image[1]}&tableware=${grey_image[2]}&meetingroom=${grey_image[3]}&diapers=${grey_image[4]}&playroom=${grey_image[5]}&carriage=${grey_image[6]}&nursingroom=${grey_image[7]}&chair=${grey_image[8]}");
   }
-
-
-
-
-
-
   WebViewController controller;
   icon iconwidget = new icon();
 
@@ -118,13 +112,11 @@ class _map_listState extends State<map_list> {
                 onPageStarted: startLoading,
                 onWebViewCreated: (WebViewController webViewController) {
                   controller = webViewController;
-                  if (latitude == 'NaN' ||
-                      longitude == 'NaN' ||
-                      latitude == '' ||
-                      longitude == '') {} else {
-                    controller.loadUrl(
-                        url+'/maps/show-place?lat=$latitude&lon=$longitude&type=allsearch&place_code=$place_code&user_id=59');
-                  }
+                  controller.loadUrl(
+                        url+'/maps/show-place?lat=$latitude&lon=$longitude&type=allsearch&place_code=$place_code');
+
+                  print(place_code);
+
                 },
                 javascriptMode: JavascriptMode.unrestricted,
                 javascriptChannels: Set.from([

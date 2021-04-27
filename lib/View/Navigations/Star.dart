@@ -12,6 +12,7 @@ import 'package:uahage/Widget/icon.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:provider/provider.dart';
 import 'package:uahage/Provider/ConnectivityStatus.dart';
+import 'package:uahage/Widget/static.dart';
 
 class starPage extends StatefulWidget {
   String loginOption;
@@ -45,7 +46,7 @@ class _starPageState extends State<starPage> {
   }
 
   Future myFuture;
-  icon iconwidget = new icon();
+
   @override
   void initState() {
     setState(() {
@@ -57,21 +58,12 @@ class _starPageState extends State<starPage> {
 
   final GlobalKey<AnimatedListState> listKey = GlobalKey<AnimatedListState>();
 
-  bool isIOS = Platform.isIOS;
-  bool isIphoneX = Device.get().isIphoneX;
   appbar bar = new appbar();
   @override
   Widget build(BuildContext context) {
     ConnectivityStatus connectionStatus =
         Provider.of<ConnectivityStatus>(context);
-    if (isIphoneX) {
-      ScreenUtil.init(context, width: 2345, height: 5076);
-    } else if (isIOS) {
-      print("shu1");
-      ScreenUtil.init(context, width: 781.5, height: 1390);
-    } else {
-      ScreenUtil.init(context, width: 1501, height: 2667);
-    }
+    ScreenUtil.init(context, width: 1501, height: 2667);
     return Scaffold(
         backgroundColor: Colors.white,
         appBar: bar.navHome_abbbar("즐겨찾기", context),
@@ -160,7 +152,7 @@ class _starPageState extends State<starPage> {
                                     ),
                                     onDismissed: (direction) async {
                                       var data = snapshot.data[index];
-                                 //     await click_star(data.address);
+                                      //     await click_star(data.address);
                                       // setState(() {
                                       snapshot.data.removeAt(index);
                                       // });
@@ -244,7 +236,7 @@ class _starPageState extends State<starPage> {
                                                                     snapshot
                                                                         .data[
                                                                             index]
-                                                                        .store_name,
+                                                                        .name,
                                                                     style:
                                                                         TextStyle(
                                                                       fontSize:
@@ -282,61 +274,62 @@ class _starPageState extends State<starPage> {
                                                                 .bottomRight,
                                                             child: Row(
                                                               children: [
-                                                                iconwidget.chair(
+
+                                                                icon.chair(
                                                                     snapshot
                                                                         .data[
-                                                                            index]
+                                                                    index]
                                                                         .chair,
                                                                     context),
-                                                                iconwidget.carriage(
+                                                                icon.carriage(
                                                                     snapshot
                                                                         .data[
-                                                                            index]
+                                                                    index]
                                                                         .carriage,
                                                                     context),
-                                                                iconwidget.menu(
+                                                                icon.menu(
                                                                     snapshot
                                                                         .data[
-                                                                            index]
+                                                                    index]
                                                                         .menu,
                                                                     context),
-                                                                iconwidget.bed(
+                                                                icon.bed(
                                                                     snapshot
                                                                         .data[
-                                                                            index]
+                                                                    index]
                                                                         .bed,
                                                                     context),
-                                                                iconwidget.tableware(
+                                                                icon.tableware(
                                                                     snapshot
                                                                         .data[
-                                                                            index]
+                                                                    index]
                                                                         .tableware,
                                                                     context),
-                                                                iconwidget.meetingroom(
+                                                                icon.meetingroom(
                                                                     snapshot
                                                                         .data[
-                                                                            index]
+                                                                    index]
                                                                         .meetingroom,
                                                                     context),
-                                                                iconwidget.diapers(
+                                                                icon.diapers(
                                                                     snapshot
                                                                         .data[
-                                                                            index]
+                                                                    index]
                                                                         .diapers,
                                                                     context),
-                                                                iconwidget.playroom(
+                                                                icon.playroom(
                                                                     snapshot
                                                                         .data[
-                                                                            index]
+                                                                    index]
                                                                         .playroom,
                                                                     context),
-                                                                iconwidget.nursingroom(
+                                                                icon.nursingroom(
                                                                     snapshot
                                                                         .data[
-                                                                            index]
+                                                                    index]
                                                                         .nursingroom,
                                                                     context),
-                                                              ],
+  ],
                                                             ),
                                                           )
                                                         ],
@@ -470,14 +463,15 @@ class _starPageState extends State<starPage> {
   Future _getstar() async {
     var star_list1 = [];
     // starColor = [];
-    var data = await http
-        .get('http://hohocompany.co.kr/starlist?user_id=$userId$loginOption');
+    var data = await http.get(URL + '/api/bookmarks/?user_id=$userId');
 
-    var jsonData = json.decode(data.body);
+    var jsonData = json.decode(data.body)['data']['rows'];
+    print(jsonData);
+
     for (var r in jsonData) {
       Star_list star_list = Star_list(
           r["id"],
-          r["store_name"],
+          r["name"],
           r["address"],
           r["phone"],
           r["menu"],
@@ -503,7 +497,7 @@ class _starPageState extends State<starPage> {
 
 class Star_list {
   final int id;
-  final String store_name;
+  final String name;
   final String address;
   final String phone;
   final String menu;
@@ -521,7 +515,7 @@ class Star_list {
 
   Star_list(
       this.id,
-      this.store_name,
+      this.name,
       this.address,
       this.phone,
       this.menu,

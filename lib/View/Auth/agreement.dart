@@ -10,8 +10,10 @@ import 'registrationPage.dart';
 import 'package:flutter_naver_login/flutter_naver_login.dart';
 import 'package:http/http.dart' as http;
 import 'package:flutter_screenutil/flutter_screenutil.dart';
-import 'package:uahage/Widget//appBar.dart';import 'package:flutter_config/flutter_config.dart';
+import 'package:uahage/Widget//appBar.dart';
+import 'package:flutter_config/flutter_config.dart';
 import 'package:uahage/API/auth.dart';
+import 'package:uahage/Widget/static.dart';
 
 class agreementPage extends StatefulWidget {
   agreementPage({Key key, this.loginOption}) : super(key: key);
@@ -22,7 +24,7 @@ class agreementPage extends StatefulWidget {
 }
 
 class _agreementPageState extends State<agreementPage> {
-  String url;
+  String url = URL;
   String Email = "";
   String userId = "";
 
@@ -38,22 +40,20 @@ class _agreementPageState extends State<agreementPage> {
     });
   }
 
-
-
   _issueAccessToken(String authCode) async {
     try {
       var token = await AuthApi.instance.issueAccessToken(authCode);
       AccessTokenStore.instance.toStore(token);
       await kakaoGetEmail();
-      isAlreadyRegistered = await auth.checkEmail(Email,loginOption);
+      isAlreadyRegistered = await auth.checkEmail(Email, loginOption);
 
       if (!isAlreadyRegistered) {
-       userId = await auth.signIn(Email,loginOption);
-         Navigator.pushReplacement(
+        userId = await auth.signIn(Email, loginOption);
+        Navigator.pushReplacement(
             context,
             MaterialPageRoute(
-              builder: (context) => navigationPage(
-                  userId: userId, loginOption: loginOption),
+              builder: (context) =>
+                  navigationPage(userId: userId, loginOption: loginOption),
             ));
       } else {
         Navigator.pushReplacement(
@@ -65,7 +65,6 @@ class _agreementPageState extends State<agreementPage> {
               ),
             ));
       }
-
     } catch (e) {
       print(e.toString());
     }
@@ -118,7 +117,6 @@ class _agreementPageState extends State<agreementPage> {
       isAlreadyRegistered = await auth.checkEmail(Email, loginOption);
       // create database
       if (isAlreadyRegistered) {
-
         Navigator.pushReplacement(
           context,
           MaterialPageRoute(
@@ -149,7 +147,7 @@ class _agreementPageState extends State<agreementPage> {
     _initKakaoTalkInstalled();
 
     loginOption = widget.loginOption;
-    url = FlutterConfig.get('API_URL');
+    // url = FlutterConfig.get('API_URL');
     super.initState();
   }
 

@@ -12,13 +12,8 @@ import 'package:uahage/Model/examination_institution_helper.dart';
 
 class places{
 
-
-  static Future<List<dynamic>> getList(tableType,latitude,longitude,pageNumber,userId) async {
-    String url = FlutterConfig.get('API_URL');
-    int place_code = 0;
-
-    List<dynamic> sortedListData = [];
-
+  static placeCode(tableType){
+    var place_code = 0;
     if (tableType == 'restaurant') {
       place_code = 1;
     } else if (tableType == 'Examination_institution') {
@@ -28,6 +23,16 @@ class places{
     } else if (tableType == 'Kids_cafe') {
       place_code = 5;
     }
+    return place_code;
+  }
+  static Future<List<dynamic>> getList(data,tableType,latitude,longitude,pageNumber,userId) async {
+    String url = FlutterConfig.get('API_URL');
+
+
+    List<dynamic> sortedListData = data;
+    var place_code = 0;
+    place_code = placeCode(tableType);
+
 
     final response = await http.get(
         url+'/api/places?place_code=$place_code&lat=$latitude&lon=$longitude&pageNumber=$pageNumber&user_id=$userId');

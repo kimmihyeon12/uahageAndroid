@@ -1,32 +1,33 @@
 
 import 'dart:io';
 import 'package:flutter/material.dart';
-
 import 'package:flutter_spinkit/flutter_spinkit.dart';
 import 'package:provider/provider.dart';
-
+import 'dart:async';
 import 'package:uahage/Provider/locationProvider.dart';
-
 import 'package:webview_flutter/webview_flutter.dart';
- 
 import 'package:uahage/Widget/toast.dart';
-
 import 'package:uahage/Widget/icon.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:uahage/Widget/indexMap.dart';
 
+
+import 'dart:convert';
+import 'package:http/http.dart' as http;
+import 'package:flutter_config/flutter_config.dart';
+import 'package:uahage/API/bookMark.dart';
 import 'package:uahage/Widget/showPopupMenu.dart';
 import 'package:flutter_config/flutter_config.dart';
 import 'package:uahage/API/bookMark.dart';
 class searchPage extends StatefulWidget {
   searchPage(
       {Key key,
-        this.latitude,
-        this.longitude,
-        this.userId,
-        this.loginOption,
-        this.Area,
-        this.Locality})
+      this.latitude,
+      this.longitude,
+      this.userId,
+      this.loginOption,
+      this.Area,
+      this.Locality})
       : super(key: key);
   String latitude;
   String longitude;
@@ -57,12 +58,16 @@ class _searchPageState extends State<searchPage> {
 
   List<int> grey_image = [0, 0, 0, 0, 0, 0, 0, 0, 0];
 
-
   Future searchCategory() async {
-    controller.loadUrl(
-        url+"/maps/show-place?lat=$latitude&lon=$longitude&type=filter&menu=${grey_image[0]}&bed=${grey_image[1]}&tableware=${grey_image[2]}&meetingroom=${grey_image[3]}&diapers=${grey_image[4]}&playroom=${grey_image[5]}&carriage=${grey_image[6]}&nursingroom=${grey_image[7]}&chair=${grey_image[8]}");
+    controller.loadUrl(url +
+        "/maps/show-place?lat=$latitude&lon=$longitude&type=filter&menu=${grey_image[0]}&bed=${grey_image[1]}&tableware=${grey_image[2]}&meetingroom=${grey_image[3]}&diapers=${grey_image[4]}&playroom=${grey_image[5]}&carriage=${grey_image[6]}&nursingroom=${grey_image[7]}&chair=${grey_image[8]}");
   }
 
+  bookmarkSelect(place_id) async {
+    var response =
+        await http.get(url + "/api/bookmarks?user_id=$userId&place_id=$place_id");
+    return json.decode(response.body)["data"]["rowCount"];
+  }
 
 
   // WebViewController _controller;
@@ -126,11 +131,10 @@ class _searchPageState extends State<searchPage> {
                 onWebViewCreated: (WebViewController webViewController) async {
                   controller = webViewController;
                   print(latitude + "  " + longitude);
-                  await controller.loadUrl(
-                      url+'/maps?lat=$latitude&lon=$longitude');
+                  await controller
+                      .loadUrl(url + '/maps?lat=$latitude&lon=$longitude');
                   print(controller.currentUrl().toString());
                 },
-
                 javascriptMode: JavascriptMode.unrestricted,
                 javascriptChannels: Set.from([
                   JavascriptChannel(
@@ -141,23 +145,23 @@ class _searchPageState extends State<searchPage> {
                         var bookmark = await bookMark.bookmarkSelect(userId,Message[0]);
                         var JsonMessage = {
                           "id": Message[0],
-                          "name":  Message[1],
-                          "address":  Message[2],
-                          "phone":  Message[3],
-                          "lat":  Message[4],
-                          "lon":  Message[5],
-                          "carriage":  Message[6],
-                          "bed":  Message[7],
-                          "tableware":  Message[8],
-                          "nursingroom":  Message[9],
-                          "meetingroom":  Message[10],
-                          "diapers":  Message[11],
-                          "playroom":  Message[12],
-                          "chair":  Message[13],
-                          "menu":  Message[14],
-                          "bookmark":  bookmark.toString()
+                          "name": Message[1],
+                          "address": Message[2],
+                          "phone": Message[3],
+                          "lat": Message[4],
+                          "lon": Message[5],
+                          "carriage": Message[6],
+                          "bed": Message[7],
+                          "tableware": Message[8],
+                          "nursingroom": Message[9],
+                          "meetingroom": Message[10],
+                          "diapers": Message[11],
+                          "playroom": Message[12],
+                          "chair": Message[13],
+                          "menu": Message[14],
+                          "bookmark": bookmark.toString()
                         };
-                        await  showpopup.showPopUpbottomMenu(
+                        await showpopup.showPopUpbottomMenu(
                             context,
                             2667.h,
                             1501.w,
@@ -167,7 +171,6 @@ class _searchPageState extends State<searchPage> {
                             loginOption,
                             "search",
                             "restaurant");
-
                       })
                 ]),
               ),
@@ -177,7 +180,7 @@ class _searchPageState extends State<searchPage> {
           GestureDetector(
             onTap: () async {
               setState(() {
-                  grey_image = [0,0,0,0,0,0,0,0,0];
+                grey_image = [0, 0, 0, 0, 0, 0, 0, 0, 0];
               });
               List okButton = await showpopup.showPopUpMenu(
                   context, 2667.h, 1501.w, latitude, longitude, grey_image);
@@ -215,7 +218,7 @@ class _searchPageState extends State<searchPage> {
                     margin: EdgeInsets.only(left: 41.w),
                     width: 1200.w,
                     child: // 검색 조건을 설정해주세요
-                    Row(
+                        Row(
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       children: [
                         Text("검색 조건을 설정해주세요",

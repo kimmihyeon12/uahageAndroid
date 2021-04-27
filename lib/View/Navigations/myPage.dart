@@ -71,8 +71,7 @@ class _myPageState extends State<myPage> {
     setState(() {
       token = sharedPreferences.getString("uahageUserToken");
       userId = sharedPreferences.getString("uahageUserId");
-      print(token);
-      print(userId);
+
     });
     try {
       var response = await http.get(url + "/api/users/$userId",
@@ -634,7 +633,7 @@ class _myPageState extends State<myPage> {
                                               SharedPreferences prefs =
                                                   await SharedPreferences
                                                       .getInstance();
-                                              await prefs.clear();
+                                              // await prefs.clear();
 
                                               //delete data in the database
                                               showDialog(

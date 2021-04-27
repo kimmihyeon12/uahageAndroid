@@ -11,8 +11,7 @@ import 'package:shared_preferences/shared_preferences.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:uahage/Widget/appBar.dart';
 import 'package:uahage/Widget/showDialog.dart';
-import 'package:flutter_config/flutter_config.dart';
-import 'package:uahage/API/auth.dart';
+import 'package:uahage/Widget/static.dart';
 
 class registrationPage extends StatefulWidget {
   String Email;
@@ -25,7 +24,7 @@ class registrationPage extends StatefulWidget {
 class _registrationPageState extends State<registrationPage> {
   //gender image , gender image color
   bool isIOS = Platform.isIOS;
-  String url;
+
   var boy = true;
   var girl = true;
   var boy_image = [
@@ -45,12 +44,11 @@ class _registrationPageState extends State<registrationPage> {
   String Email = "";
   String userId = "";
   bool saveError = false;
-
+  String url = URL;
   @override
   void initState() {
     super.initState();
     setState(() {
-      url = FlutterConfig.get('API_URL');
       loginOption = widget.loginOption;
       Email = widget.Email;
     });
@@ -58,18 +56,84 @@ class _registrationPageState extends State<registrationPage> {
 
 //check nickname
   Future checkNickName() async {
-    isIdValid = await auth.checkNickName(nickName);
-    setState(() {
-      isIdValid = isIdValid;
-    });
-    if(isIdValid) return "사용가능한 닉네임 입니다";
-     else return "이미 사용중인 닉네임 입니다";
+    try {
+      var response = await http.get(
+        url +
+            "/api/users/find-by-option?option=nickname&optionData='${nickName}'",
+      );
+      print("isdata nickname" + jsonDecode(response.body)["isdata"].toString());
+      if (jsonDecode(response.body)["isdata"] == 0) {
+        setState(() {
+          isIdValid = true;
+        });
+        return "사용 가능한 닉네임입니다.";
+      } else {
+        setState(() {
+          isIdValid = false;
+        });
+        return "이미 사용중인 닉네임입니다.";
+      }
+    } catch (err) {
+      print(err);
+      return Future.error(err);
+    }
   }
 
-Future signUp(type, Email,loginOption,nickName,gender,birthday,userAge) async {
-    userId = await auth.signUp(type, Email, loginOption, nickName, gender, birthday, userAge);
-    return true;
-}
+  Future signUp(String type) async {
+    SharedPreferences sharedPreferences = await SharedPreferences.getInstance();
+
+    Map<String, dynamic> userData = type == "withNickname"
+        ? {
+            "email": "'$Email$loginOption'",
+            "nickname": "'$nickName'",
+            "gender": "'$gender'",
+            "birthday": "'$birthday'",
+            "age": userAge,
+            "URL": null,
+            "rf_token": null
+          }
+        : {
+            "email": "'$Email$loginOption'",
+            "nickname": null,
+            "gender": null,
+            "birthday": null,
+            "age": null,
+            "URL": null,
+            "rf_token": null
+          };
+    try {
+      var response = await http.post(
+        url + "/api/auth/signup",
+        headers: <String, String>{
+          'Content-Type': 'application/json; charset=UTF-8',
+        },
+        body: jsonEncode(userData),
+      );
+
+      if (response.statusCode == 200) {
+        setState(() {
+          saveError = false;
+        });
+        var data = jsonDecode(response.body);
+        String token = data['data']['token'];
+        setState(() {
+          userId = data['data']['id'].toString();
+        });
+        //save user info
+        await sharedPreferences.setString("uahageUserToken", token);
+        await sharedPreferences.setString("uahageUserId", userId);
+
+        return data["message"];
+      } else {
+        setState(() {
+          saveError = true;
+        });
+        return Future.error(jsonDecode(response.body)["message"]);
+      }
+    } catch (error) {
+      return Future.error(error);
+    }
+  }
 
   SpinKitThreeBounce buildSpinKitThreeBounce(double size, double screenWidth) {
     return SpinKitThreeBounce(
@@ -148,7 +212,7 @@ Future signUp(type, Email,loginOption,nickName,gender,birthday,userAge) async {
                                   ),
                                   focusedBorder: UnderlineInputBorder(
                                     borderSide:
-                                    BorderSide(color: Color(0xffff7292)),
+                                        BorderSide(color: Color(0xffff7292)),
                                   ),
                                   hintText: '닉네임을 입력하세요',
                                   hintStyle: TextStyle(
@@ -165,21 +229,20 @@ Future signUp(type, Email,loginOption,nickName,gender,birthday,userAge) async {
                                   child: FlatButton(
                                     shape: new RoundedRectangleBorder(
                                       borderRadius:
-                                      new BorderRadius.circular(8.0),
+                                          new BorderRadius.circular(8.0),
                                     ),
                                     onPressed: nickName != ""
                                         ? () {
-                                      currentFocus.unfocus();
-                                      buildShowDialogOnOk(
-
-                                          checkNickName(),
-                                          context,
-                                          200.h,
-                                          200.w,
-                                          80.w,
-                                          1501.w,
-                                          62.5.sp);
-                                    }
+                                            currentFocus.unfocus();
+                                            buildShowDialogOnOk(
+                                                checkNickName(),
+                                                context,
+                                                200.h,
+                                                200.w,
+                                                80.w,
+                                                1501.w,
+                                                62.5.sp);
+                                          }
                                         : () {},
                                     color: nickName == ""
                                         ? Color(0xffcacaca)
@@ -243,7 +306,7 @@ Future signUp(type, Email,loginOption,nickName,gender,birthday,userAge) async {
                           height: 362.h,
                           width: 262.w,
                           child:
-                          Image.asset(girl ? girl_image[0] : girl_image[1]),
+                              Image.asset(girl ? girl_image[0] : girl_image[1]),
                         ),
                         Padding(padding: EdgeInsets.only(bottom: 11)),
                       ]),
@@ -295,7 +358,7 @@ Future signUp(type, Email,loginOption,nickName,gender,birthday,userAge) async {
                                     ),
                                     focusedBorder: UnderlineInputBorder(
                                       borderSide:
-                                      BorderSide(color: Color(0xffff7292)),
+                                          BorderSide(color: Color(0xffff7292)),
                                     ),
                                     hintText: '생년월일을 선택해주세요',
                                     hintStyle: TextStyle(
@@ -452,48 +515,48 @@ Future signUp(type, Email,loginOption,nickName,gender,birthday,userAge) async {
                     borderRadius: new BorderRadius.circular(8.0),
                   ),
                   onPressed: isIdValid &&
-                      userAge != "" &&
-                      birthday != "" &&
-                      birthday != "" &&
-                      nickName != ""
+                          userAge != "" &&
+                          birthday != "" &&
+                          birthday != "" &&
+                          nickName != ""
                       ? () async {
+                          showDialog(
+                            barrierDismissible: false,
+                            context: context,
+                            builder: (context) => FutureBuilder(
+                                future: signUp("withNickname"),
+                                builder: (context, snapshot) {
+                                  if (snapshot.hasData) {
+                                    WidgetsBinding.instance
+                                        .addPostFrameCallback((_) async {
+                                      Navigator.pop(context);
+                                      saveError
+                                          ? null
+                                          : Navigator.pushReplacement(
+                                              context,
+                                              MaterialPageRoute(
+                                                builder: (context) =>
+                                                    navigationPage(
+                                                        oldNickname: nickName,
+                                                        userId: userId,
+                                                        loginOption:
+                                                            loginOption),
+                                              ));
+                                    });
+                                  } else if (snapshot.hasError)
+                                    return buildAlertDialog(
+                                        snapshot, 1500.h, context, _fontsize);
 
-                    showDialog(
-                      barrierDismissible: false,
-                      context: context,
-                      builder: (context) => FutureBuilder(
-
-                          future: signUp("withNickname", Email, loginOption, nickName, gender, birthday, userAge),
-                          builder: (context, snapshot) {
-                            if (snapshot.hasData) {
-                              WidgetsBinding.instance
-                                  .addPostFrameCallback((_) async {
-                                Navigator.pop(context);
-                                Navigator.pushReplacement(
-                                    context,
-                                    MaterialPageRoute(
-                                      builder: (context) =>
-                                          navigationPage(
-                                              oldNickname: nickName,
-                                              userId: userId,
-                                              loginOption:
-                                              loginOption),
-                                    ));
-                              });
-                            } else if (snapshot.hasError)
-                              return buildAlertDialog(
-                                  snapshot, 1500.h, context, _fontsize);
-
-                            return buildCenterProgress(1500.h, 2667.h);
-                          }),
-                    );
-                  }
+                                  return buildCenterProgress(1500.h, 2667.h);
+                                }),
+                          );
+                        }
                       : () {},
                   color: isIdValid &&
-                      userAge != "" &&
-                      birthday != "" &&
-                      birthday != "" &&
-                      nickName != ""
+                          userAge != "" &&
+                          birthday != "" &&
+                          birthday != "" &&
+                          nickName != ""
                       ? Color(0xffff7292)
                       : Color(0xffcccccc),
                   child: Text(
@@ -520,13 +583,20 @@ Future signUp(type, Email,loginOption,nickName,gender,birthday,userAge) async {
                     showDialog(
                       context: context,
                       builder: (context) => FutureBuilder(
-                        future: signUp("", Email, loginOption, nickName, gender, birthday, userAge),
+                        future: signUp(""),
                         builder: (context, snapshot) {
                           if (snapshot.hasData) {
                             WidgetsBinding.instance
                                 .addPostFrameCallback((_) async {
                               Navigator.pop(context);
-
+                              if (!saveError) {
+                                // SharedPreferences prefs =
+                                // await SharedPreferences.getInstance();
+                                //
+                                // await prefs.setString(
+                                //     'uahageUserEmail', Email);
+                                // await prefs.setString(
+                                //     "uahageLoginOption", loginOption);
                                 Navigator.pushReplacement(
                                   context,
                                   MaterialPageRoute(
@@ -535,7 +605,7 @@ Future signUp(type, Email,loginOption,nickName,gender,birthday,userAge) async {
                                         loginOption: loginOption),
                                   ),
                                 );
-
+                              }
                             });
                           } else if (snapshot.hasError) {
                             buildAlertDialog(
@@ -569,13 +639,13 @@ Future signUp(type, Email,loginOption,nickName,gender,birthday,userAge) async {
           height: 200.h,
           width: 200.w,
           child: buildSpinKitThreeBounce(80, screenWidth)
-        // CircularProgressIndicator(
-        //   strokeWidth: 5.0,
-        //   valueColor: new AlwaysStoppedAnimation<Color>(
-        //     Colors.pinkAccent,
-        //   ),
-        // )
-      ),
+          // CircularProgressIndicator(
+          //   strokeWidth: 5.0,
+          //   valueColor: new AlwaysStoppedAnimation<Color>(
+          //     Colors.pinkAccent,
+          //   ),
+          // )
+          ),
     );
   }
 
@@ -585,22 +655,22 @@ Future signUp(type, Email,loginOption,nickName,gender,birthday,userAge) async {
       shape: RoundedRectangleBorder(
           borderRadius: BorderRadius.all(Radius.circular(20.0))),
       title:
-      // id already exists.
-      Text("${snapshot.error}",
-          style: TextStyle(
-              color: Color(0xff4d4d4d),
-              fontWeight: FontWeight.w500,
-              fontFamily: "NotoSansCJKkr_Medium",
-              fontStyle: FontStyle.normal,
-              fontSize: 62.5.sp),
-          textAlign: TextAlign.left),
+          // id already exists.
+          Text("${snapshot.error}",
+              style: TextStyle(
+                  color: Color(0xff4d4d4d),
+                  fontWeight: FontWeight.w500,
+                  fontFamily: "NotoSansCJKkr_Medium",
+                  fontStyle: FontStyle.normal,
+                  fontSize: 62.5.sp),
+              textAlign: TextAlign.left),
       actions: [
         FlatButton(
             onPressed: () {
               Navigator.pop(context);
             },
             child: // 확인
-            buildText(_fontsize))
+                buildText(_fontsize))
       ],
     );
   }

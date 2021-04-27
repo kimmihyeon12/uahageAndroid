@@ -21,15 +21,14 @@ class SubListPage extends StatefulWidget {
   final userId;
   final tableType;
 
-  const SubListPage(
-      {Key key,
-      this.index,
-      this.data,
-      this.loginOption,
-      this.userId,
-      this.tableType,
-   })
-      : super(key: key);
+  const SubListPage({
+    Key key,
+    this.index,
+    this.data,
+    this.loginOption,
+    this.userId,
+    this.tableType,
+  }) : super(key: key);
   @override
   _SubListPageState createState() => _SubListPageState();
 }
@@ -39,14 +38,11 @@ class _SubListPageState extends State<SubListPage> {
   String url;
   var userId = "";
   var loginOption = "";
-  var data ;
+  var data;
   var bookmark;
   var tableType = "";
   int place_id;
   toast show_toast = new toast();
-
-
-
 
   ScrollController _scrollController = ScrollController();
   var enabled = false;
@@ -219,10 +215,9 @@ class _SubListPageState extends State<SubListPage> {
                             constraints: BoxConstraints(
                                 maxWidth: 170.w, maxHeight: 170.h),
                             icon: Image.asset(
-                                bookmark == 0?
-                                "./assets/listPage/star_grey.png" :
-                                     "./assets/listPage/star_color.png",
-
+                                bookmark == 0
+                                    ? "./assets/listPage/star_grey.png"
+                                    : "./assets/listPage/star_color.png",
                                 height: 60.h),
                             onPressed: loginOption == "login"
                                 ? () {
@@ -237,17 +232,16 @@ class _SubListPageState extends State<SubListPage> {
                                     );
                                   }
                                 : () async {
-                                 setState(() {
-                                   place_id = data.id;
-                                 });
-                                    if ( bookmark == 0) {
-                                      bookMark.bookmarkCreate(userId,place_id);
+                                    setState(() {
+                                      place_id = data.id;
+                                    });
+                                    if (bookmark == 0) {
+                                      bookMark.bookmarkCreate(userId, place_id);
                                       setState(() {
                                         bookmark = 1;
                                       });
-
                                     } else {
-                                      bookMark.bookmarkDelete(userId,place_id);
+                                      bookMark.bookmarkDelete(userId, place_id);
                                       setState(() {
                                         bookmark = 0;
                                       });
@@ -616,7 +610,7 @@ class _SubListPageState extends State<SubListPage> {
                       ))
                 ],
               ),
-        /*      Container(
+              /*      Container(
                 height: 1100.h,
                 child: WebView(
                   // gestureNavigationEnabled: true,

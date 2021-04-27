@@ -7,6 +7,7 @@ import 'dart:async';
 import 'listMap.dart';
 import 'package:page_transition/page_transition.dart';
 import 'package:uahage/Widget/toast.dart';
+import 'package:uahage/Widget/static.dart';
 
 import 'package:uahage/Model//Restaurant_helper.dart';
 import 'package:uahage/Widget/icon.dart';
@@ -20,24 +21,14 @@ import 'package:uahage/API/bookMark.dart';
 import 'package:uahage/API/places.dart';
 
 class ListPage extends StatefulWidget {
-
   String userId;
   String latitude = "";
   String longitude = "";
-  String Area = "";
-  String Locality = "";
   String tableType = "";
 
   // String oldNickname;
   ListPage(
-      {Key key,
-      this.userId,
-
-      this.latitude,
-      this.longitude,
-      this.Area,
-      this.Locality,
-      this.tableType});
+      {Key key, this.userId, this.latitude, this.longitude, this.tableType});
   @override
   _ListPageState createState() => _ListPageState();
 }
@@ -47,26 +38,10 @@ class _ListPageState extends State<ListPage> {
   String latitude = "";
   String longitude = "";
   String userId = "";
-
-  String Area = "";
-  String Locality = "";
   String tableType = "";
-  String store_name1,
-      address1,
-      phone1,
-      menu1,
-      bed1,
-      tableware1,
-      meetingroom1,
-      diapers1,
-      playroom1,
-      carriage1,
-      nursingroom1,
-      chair1;
+
   var list = true;
   toast show_toast = new toast();
-
-  List<bool> star_color_list = [];
   var star_color = false;
   bool toggle = false;
 
@@ -94,16 +69,14 @@ class _ListPageState extends State<ListPage> {
   ScrollController _scrollController = ScrollController();
   List<dynamic> sortedListData = [];
 
-  Map<double, dynamic> map = new Map();
-  var sortedKeys;
   int pageNumber = 0;
   bool isLoading;
   var place_id;
   var place_code;
-  String url;
+  String url = URL;
   @override
   void initState() {
-    url = FlutterConfig.get('API_URL');
+    // url = FlutterConfig.get('API_URL');
     sortedListData = [];
 
     userId = widget.userId ?? "";
@@ -111,27 +84,25 @@ class _ListPageState extends State<ListPage> {
     longitude = widget.longitude ?? "";
     tableType = widget.tableType ?? "";
     myFuture = _getDataList();
+    place_code = places.placeCode(tableType);
     super.initState();
 
     _scrollController.addListener(() {
       double maxScroll = _scrollController.position.maxScrollExtent;
       double currentScroll = _scrollController.position.pixels;
-      if (currentScroll == maxScroll && !isLoading) {
+      if (currentScroll == maxScroll ) {
+        print('maxScroll');
         pageNumber++;
-        isLoading = true;
         _getDataList();
       }
     });
   }
 
-
-
-
-
   Future<List<dynamic>> _getDataList() async {
-    sortedListData  = await places.getList(tableType, latitude, longitude, pageNumber, userId);
+    sortedListData = await places.getList(sortedListData, tableType, latitude, longitude, pageNumber, userId);
+    setState(() { });
     return sortedListData;
-   }
+  }
 
   @override
   void dispose() {
@@ -146,7 +117,6 @@ class _ListPageState extends State<ListPage> {
     );
   }
 
-  icon iconwidget = new icon();
 
   @override
   Widget build(BuildContext context) {
@@ -244,7 +214,6 @@ class _ListPageState extends State<ListPage> {
             listView(context, 1501.w, 2667.h),
             map_list(
               userId: userId,
-
               latitude: latitude,
               longitude: longitude,
               list: tableType,
@@ -263,7 +232,7 @@ class _ListPageState extends State<ListPage> {
             child: Text("${snapshot.error}"),
           );
         } else if (snapshot.hasData && snapshot.data != null) {
-           return Scrollbar(
+          return Scrollbar(
             child: ListView.builder(
                 controller: _scrollController,
                 itemCount: sortedListData?.length,
@@ -414,39 +383,39 @@ class _ListPageState extends State<ListPage> {
                                                     Alignment.bottomRight,
                                                 child: Row(
                                                   children: [
-                                                    iconwidget.chair(
+                                                    icon.chair(
                                                         snapshot
                                                             .data[index].chair,
                                                         context),
-                                                    iconwidget.carriage(
+                                                    icon.carriage(
                                                         snapshot.data[index]
                                                             .carriage,
                                                         context),
-                                                    iconwidget.menu(
+                                                    icon.menu(
                                                         snapshot
                                                             .data[index].menu,
                                                         context),
-                                                    iconwidget.bed(
+                                                    icon.bed(
                                                         snapshot
                                                             .data[index].bed,
                                                         context),
-                                                    iconwidget.tableware(
+                                                    icon.tableware(
                                                         snapshot.data[index]
                                                             .tableware,
                                                         context),
-                                                    iconwidget.meetingroom(
+                                                    icon.meetingroom(
                                                         snapshot.data[index]
                                                             .meetingroom,
                                                         context),
-                                                    iconwidget.diapers(
+                                                    icon.diapers(
                                                         snapshot.data[index]
                                                             .diapers,
                                                         context),
-                                                    iconwidget.playroom(
+                                                    icon.playroom(
                                                         snapshot.data[index]
                                                             .playroom,
                                                         context),
-                                                    iconwidget.nursingroom(
+                                                    icon.nursingroom(
                                                         snapshot.data[index]
                                                             .nursingroom,
                                                         context),
@@ -482,10 +451,10 @@ class _ListPageState extends State<ListPage> {
                                     place_id = snapshot.data[index].id;
                                   });
                                   if (snapshot.data[index].bookmark == 0) {
-                                    bookMark.bookmarkCreate(userId,place_id);
+                                    bookMark.bookmarkCreate(userId, place_id);
                                     snapshot.data[index].bookmark = 1;
                                   } else {
-                                    bookMark.bookmarkDelete(userId,place_id);
+                                    bookMark.bookmarkDelete(userId, place_id);
                                     snapshot.data[index].bookmark = 0;
                                   }
                                 },
