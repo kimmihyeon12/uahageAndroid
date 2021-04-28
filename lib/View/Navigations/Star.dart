@@ -66,7 +66,7 @@ class _starPageState extends State<starPage> {
     ScreenUtil.init(context, width: 1501, height: 2667);
     return Scaffold(
         backgroundColor: Colors.white,
-        appBar: bar.navHome_abbbar("즐겨찾기", context),
+        appBar: appbar.appBar("즐겨찾기", context),
         body: Column(
           children: [
             Expanded(

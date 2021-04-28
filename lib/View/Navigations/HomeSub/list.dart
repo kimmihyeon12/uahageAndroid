@@ -373,6 +373,7 @@ class _ListPageState extends State<ListPage> {
                                             ),
                                           ),
                                         ),
+
                                         tableType == 'restaurant'
                                             ? Container(
                                                 margin:

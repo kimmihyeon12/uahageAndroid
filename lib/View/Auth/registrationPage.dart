@@ -159,7 +159,7 @@ class _registrationPageState extends State<registrationPage> {
 
     return SafeArea(
       child: Scaffold(
-        appBar: bar.navHome_abbbar("회원가입", context),
+        appBar: appbar.appBar("회원가입", context),
         body: SingleChildScrollView(
           child: Column(
             children: [

@@ -30,24 +30,28 @@ class appbar extends StatelessWidget {
     );
   }
 
-  navHome_abbbar(String text, context) {
+   static appBar(String text, context) {
     return PreferredSize(
-      preferredSize: Size.fromHeight(178.h),
-      child: Container(
-        color: Color.fromRGBO(255, 114, 148, 1.0),
-        height: 178.h,
-        child: Center(
-          child: Text(
-            text,
-            style: TextStyle(
-              fontSize: 73.sp,
-              fontFamily: 'NotoSansCJKkr_Bold',
-              letterSpacing: 0,
-              color: Colors.white,
-            ),
-          ),
+      preferredSize: Size.fromHeight(165.h),
+      child:Container(
+
+        child: Stack(
+          children: [Image.asset('./assets/homePage/bar.png', fit: BoxFit.fill),
+                    Center(
+                      child: Text(
+                        text
+                            ,style: TextStyle(
+                          color: Colors.white,
+                          fontFamily: "NotoSansCJKkr_Bold",
+                          fontSize: 73.0.sp
+                      )
+                      ),
+                    )
+  ],
         ),
-      ),
+      )
+
+
       // ),
     );
   }

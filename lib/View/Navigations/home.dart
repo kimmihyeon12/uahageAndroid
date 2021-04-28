@@ -104,7 +104,7 @@ class _homePageState extends State<homePage> {
       },
       child: Scaffold(
         backgroundColor: Colors.white,
-        appBar: bar.navHome_abbbar("우아하게", context),
+        appBar: appbar.appBar("우아하게", context),
         body: SingleChildScrollView(
           child: Column(
             children: [
