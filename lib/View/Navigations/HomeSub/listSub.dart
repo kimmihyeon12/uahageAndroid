@@ -68,6 +68,7 @@ class _SubListPageState extends State<SubListPage> {
     "./assets/searchPage/image7.png",
     "./assets/searchPage/image8.png",
     "./assets/searchPage/image9.png",
+    "./assets/searchPage/image10.png"
   ];
   var imagegrey = [
     "./assets/searchPage/image1_grey.png",
@@ -79,6 +80,7 @@ class _SubListPageState extends State<SubListPage> {
     "./assets/searchPage/image7_grey.png",
     "./assets/searchPage/image8_grey.png",
     "./assets/searchPage/image9_grey.png",
+    "./assets/searchPage/image10_grey.png"
   ];
 
   var mainimage = [
@@ -730,7 +732,13 @@ class _SubListPageState extends State<SubListPage> {
                                           imagegrey[8],
                                           width: 102.w,
                                           height: 143.h,
-                                        )
+                                        ),
+                                  Padding(padding: EdgeInsets.only(left: 33.w)),
+                                  Image.asset(
+                                    imagegrey[9],
+                                    width: 102.w,
+                                    height: 143.h,
+                                  )
                                 ],
                               ),
                             ],
@@ -761,7 +769,7 @@ class _SubListPageState extends State<SubListPage> {
                                     (720 / MediaQuery.of(context).size.width),
                               )),
                               Text(
-                                "${data.Examination_item}",
+                                "${data.examination}",
                                 style: TextStyle(
                                     color: Color(0xff808080),
                                     fontFamily: "NotoSansCJKkr_Medium",
