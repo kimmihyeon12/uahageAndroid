@@ -3,7 +3,7 @@ import 'package:flutter_screenutil/flutter_screenutil.dart';
 
 class appbar extends StatelessWidget {
   sub_appbar(String text, context, bookmark) {
-    ScreenUtil.init(context, width: 1500, height: 2667);
+
     return PreferredSize(
       preferredSize: Size.fromHeight(180.h),
       child: AppBar(
